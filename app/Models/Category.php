@@ -12,7 +12,9 @@ class Category extends Model
     protected $fillable = [
         'name',
         'slug',
-        'parent_id'
+        'parent_id',
+        'images',
+        'status'
     ];
 
     public $translatable = ['name'];

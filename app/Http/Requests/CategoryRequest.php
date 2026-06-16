@@ -26,6 +26,8 @@ class CategoryRequest extends FormRequest
             'name.en'=>['required','string','max:255'],
             'name.ar'=>['required','string','max:255'],
             'parent_id'=>['nullable','exists:categories,id'],
+            'images'=>['nullable','image','mimes:jpg,jpeg,png,webp','max:2048'],
+            'status'=>['boolean','nullable']
         ];
     }
     public function messages(): array
@@ -34,8 +36,8 @@ class CategoryRequest extends FormRequest
             'name.en.required' => 'اسم القسم بالإنجليزية مطلوب',
             'name.ar.required' => 'اسم القسم بالعربية مطلوب',
             'parent_id.exists' => 'القسم الأب المختار غير موجود',
-            // 'image.image' => 'يجب أن يكون الملف صورة',
-            // 'image.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
+            'image.image' => 'يجب أن يكون الملف صورة',
+            'image.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
         ];
     }
 }

@@ -24,8 +24,12 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group
     Route::get("/dashboard",function(){
         return view('admin.dashboard');
     })->name('dashboard');
-    Route::resource('categories',CategoryController::class);
+    //Category
+    Route::resource('categories',CategoryController::class)->except('show');
+
+    //Brands
     Route::resource('brands',BrandController::class);
+    //products
     Route::resource('products',ProductController::class);
 });
 
