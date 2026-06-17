@@ -8,8 +8,8 @@ use Illuminate\Support\Str;
 class CategorySevice{
     public function __construct(protected CategoryInterface $repository){}
 
-    public function getCategories($perPage){
-        return $this->repository->getPaginateCategories($perPage);
+    public function getCategories(){
+        return $this->repository->getPaginateCategories();
     }
 
     public function getAllCategories($perPage){

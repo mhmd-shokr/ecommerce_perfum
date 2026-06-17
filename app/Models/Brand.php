@@ -12,6 +12,7 @@ class Brand extends Model
     protected $fillable=[
         'name',
         'slug',
+        'logo'
     ];
     public $translatable = ['name'];
     public function products(){

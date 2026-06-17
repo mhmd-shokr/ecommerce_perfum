@@ -25,6 +25,7 @@ class BrandRequest extends FormRequest
         return [
             'name.en'=>['required','string','max:255'],
             'name.ar'=>['required','string','max:255'],
+            'logo'=>['nullable'],
         ];
     }
     public function messages(): array

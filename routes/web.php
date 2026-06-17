@@ -40,3 +40,4 @@ Route::get("/lang/{locale}",function($locale){
         return back();
 });
 require __DIR__.'/auth.php';
+

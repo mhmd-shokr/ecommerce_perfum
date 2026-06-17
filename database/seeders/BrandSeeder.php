@@ -18,7 +18,8 @@ class BrandSeeder extends Seeder
                 'en' => 'Dior',
                 'ar' => 'ديور'
             ],
-            'slug' => 'dior'
+            'slug' => 'dior',
+            'logo'=>'https://chatgpt.com/c/6a2d4c4c-15c0-83ea-a881-24fed212d1da'
         ]);
     
         Brand::create([
@@ -26,7 +27,8 @@ class BrandSeeder extends Seeder
                 'en' => 'Chanel',
                 'ar' => 'شانيل'
             ],
-            'slug' => 'chanel'
+            'slug' => 'chanel',
+            'logo'=>'https://chatgpt.com/c/6a2d4c4c-15c0-83ea-a881-24fed212d1da'
         ]);
     
         Brand::create([
@@ -34,7 +36,8 @@ class BrandSeeder extends Seeder
                 'en' => 'Tom Ford',
                 'ar' => 'توم فورد'
             ],
-            'slug' => 'tom-ford'
+            'slug' => 'tom-ford',
+            'logo'=>'https://chatgpt.com/c/6a2d4c4c-15c0-83ea-a881-24fed212d1da'
         ]);
     }
 }
