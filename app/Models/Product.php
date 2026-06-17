@@ -57,13 +57,17 @@ class Product extends Model
         return $this->belongsTo(Brand::class);
     }
 
-    public function fragranceNotes(){
-        return $this->belongToMany(FragranceNote::class)->without('types');
-    }
-    public function sizes()
+    public function fragranceNotes()
 {
-    return $this->belongsToMany(Size::class);
+    return $this->belongsToMany(
+        FragranceNote::class,
+        'product_fragrance_notes'
+    )->withPivot('type');
 }
+    public function sizes()
+    {
+        return $this->belongsToMany(Size::class, 'product_sizes');
+    }
 
 public function stockMovements()
 {

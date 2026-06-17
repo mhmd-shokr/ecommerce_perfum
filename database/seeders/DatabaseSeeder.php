@@ -2,7 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Product;
 use App\Models\User;
+use Database\Seeders\BrandSeeder;
+use Database\Seeders\CategorySeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RoleSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +29,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CategorySeeder::class,
             BrandSeeder::class,
+            ProductSeeder::class,
         ]);
 
         

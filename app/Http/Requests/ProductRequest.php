@@ -12,8 +12,19 @@ class ProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        
         return true;
     }
+
+    protected function prepareForValidation(): void
+{
+    $this->merge([
+        'status'          => $this->boolean('status'),
+        'is_featured'     => $this->boolean('is_featured'),
+        'is_bestseller'   => $this->boolean('is_bestseller'),
+        'is_out_of_stock' => $this->boolean('is_out_of_stock'),
+    ]);
+}
 
     /**
      * Get the validation rules that apply to the request.
@@ -36,21 +47,24 @@ class ProductRequest extends FormRequest
             'short_description.en' => 'nullable|string|max:255',
             'short_description.ar' => 'nullable|string|max:255',
     
-            'slug' => 'nullable|string|unique:products,slug',
+            'slug' => 'nullable|string|unique:products,slug,'.$this->route('product')?->id,
+            'sku'  => 'required|string|unique:products,sku,'.$this->route('product')?->id,
     
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
-    
-            'sku' => 'required|string|unique:products,sku',
-    
-            'stock' => 'required|integer|min:0',
+            'images' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+
+            'stock_quantity' => 'required|integer|min:0',
     
             'gender' => 'required|in:Men,Women,Unisex,Kids',
     
             'is_featured' => 'boolean',
             'is_bestseller' => 'boolean',
             'status' => 'boolean',
-        ];
+            'is_out_of_stock' => 'boolean',
+            // ADD to rules()
+            'low_stock_threshold' => 'nullable|integer|min:0',
+            ];
     }
 
     public function messages(): array

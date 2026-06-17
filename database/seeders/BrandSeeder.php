@@ -13,7 +13,9 @@ class BrandSeeder extends Seeder
      */
     public function run(): void
     {
-        Brand::create([
+        Brand::firstOrCreate(
+            ['slug'=>'Dior'],
+            [
             'name' => [
                 'en' => 'Dior',
                 'ar' => 'ديور'
@@ -22,7 +24,10 @@ class BrandSeeder extends Seeder
             'logo'=>'https://chatgpt.com/c/6a2d4c4c-15c0-83ea-a881-24fed212d1da'
         ]);
     
-        Brand::create([
+        Brand::firstOrCreate( 
+            ['slug'=>'chanel'],
+            
+            [
             'name' => [
                 'en' => 'Chanel',
                 'ar' => 'شانيل'
@@ -31,7 +36,10 @@ class BrandSeeder extends Seeder
             'logo'=>'https://chatgpt.com/c/6a2d4c4c-15c0-83ea-a881-24fed212d1da'
         ]);
     
-        Brand::create([
+        Brand::firstOrCreate(
+            ['slug'=>'tom-ford'],
+            
+            [
             'name' => [
                 'en' => 'Tom Ford',
                 'ar' => 'توم فورد'

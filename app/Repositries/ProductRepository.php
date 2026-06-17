@@ -28,7 +28,7 @@ class ProductRepository implements ProductInterface{
     }
 
     public function delete(int $id){
-        $product=product::findOrFail($id);
+        $product=Product::findOrFail($id);
         return $product->delete();
     }
 
@@ -42,7 +42,8 @@ class ProductRepository implements ProductInterface{
     
     public function getActiveWithRelations()
     {
-        return Product::with(['category','brand','sizes','fragranceNotes','stockMovements'])->get();
+        return Product::with(['category','brand','sizes','fragranceNotes','stockMovements'])
+        ->latest()->get();
     }
 
     public function getPaginatedActiveWithRelations(int $perPage=10){

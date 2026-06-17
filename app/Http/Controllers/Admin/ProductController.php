@@ -44,27 +44,20 @@ class ProductController extends Controller
             ->with('success', 'Product created successfully');
     }
 
-    public function show(string $id)
-    {
-        $product = $this->services->geyProductById($id);
 
-        return view('admin.products.show', compact('product'));
-    }
-
-    public function edit(string $id)
+    public function edit(Product $product)
     {
-        $product = $this->services->geyProductById($id);
+        $product->load(['category', 'brand', 'sizes', 'fragranceNotes']);
         $categories = $this->categoryService->getCategories();
         $brands = Brand::all();
-
+    
         return view('admin.products.edit', compact('product', 'categories', 'brands'));
     }
 
-    public function update(ProductRequest $request, string $id)
+    public function update(ProductRequest $request,Product $product)
     {
         $validated = $request->validated();
-
-        $product = $this->services->updateProduct($id,$validated);
+        $product = $this->services->updateProduct($product->id,$validated);
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Product updated successfully');

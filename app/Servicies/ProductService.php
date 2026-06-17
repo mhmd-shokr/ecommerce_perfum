@@ -1,8 +1,8 @@
 <?php
 namespace App\Servicies;
-
 use App\Interfaces\ProductInterface;
-use App\Services\StockService;
+use App\Servicies\StockService;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductService{
@@ -26,50 +26,75 @@ class ProductService{
         return $this->repository->findWithRelations($id);
     }
 
-    public function createProduct(array $data){
-        //generate slug
-        if(isset($data['name']['en'])){
-            $slug=Str::slug($data['name']['en']);
-            $original=$slug;
-            $count=1;
-            while($this->repository->findBySlug($slug)){
-                $slug=$original .'-'.$count++;
+    public function createProduct(array $data)
+    {
+        // Generate slug
+        if (isset($data['name']['en'])) {
+            $slug = Str::slug($data['name']['en']);
+            $original = $slug;
+            $count = 1;
+            while ($this->repository->findBySlug($slug)) {
+                $slug = $original . '-' . $count++;
             }
-            $data['slug']=$slug;
+            $data['slug'] = $slug;
         }
-        //handle image upload
-        if (request()->hasFile('image')) {
-            $data['image'] = request()->file('image')->store('products', 'public');
+    
+        if (request()->hasFile('images')) {
+            $data['images'] = request()->file('images')->store('products', 'public');
         }
-        //Image update
-        if (request()->hasFile('image')) {
-            $data['image'] = request()->file('image')->store('products', 'public');
+    
+        $stockQty = $data['stock_quantity'] ?? 0;
+        unset($data['stock_quantity']);
+    
+        $product = $this->repository->create($data);
+    
+        if ($stockQty > 0) {
+            $this->stockService->increase($product, $stockQty, 'opening stock');
         }
-        //create product
-        $product=$this->repository->create($data);
-        //handel stock
-        if(isset($data['stock_quantity']) && $data['stock_quantity']>0){
-            $this->stockService->increase($product,$data['stock_quantity'],'opening stock');
-        }
+    
         return $product;
     }
     
-    public function updateProduct(int $id,array $data){
-        //generate slug if name changed
-        if(isset($data['name']['en'])){
-            $slug=Str::slug($data['name']['en']);
-            $original=$slug;
-            $count=1;
-            while($this->repository->findBySlugExceptId($slug,$id)){
-                $slug=$original .'-'.$count++;
+    public function updateProduct(int $id, array $data)
+    {
+        $product = $this->repository->findWithRelations($id);
+    
+        // Generate slug
+        if (isset($data['name']['en'])) {
+            $slug = Str::slug($data['name']['en']);
+            $original = $slug;
+            $count = 1;
+            while ($this->repository->findBySlugExceptId($slug, $id)) {
+                $slug = $original . '-' . $count++;
             }
-            $data['slug']=$slug;
+            $data['slug'] = $slug;
         }
-        //update product
-        $product=$this->repository->update($id,$data);
-        //return updated product
-        return $this->repository->findOrFail($id);
+    
+        // Handle stock adjustment
+        if (isset($data['stock_quantity'])) {
+            $diff = $data['stock_quantity'] - $product->stock_quantity;
+            if ($diff > 0) {
+                $this->stockService->increase($product, $diff, 'manual adjustment');
+            } elseif ($diff < 0) {
+                $this->stockService->decrease($product, abs($diff), 'manual adjustment');
+            }
+            unset($data['stock_quantity']);
+        }
+    
+        if (request()->hasFile('images')) {
+            if ($product->images && Storage::disk('public')->exists($product->images)) {
+                Storage::disk('public')->delete($product->images);
+            }
+            $data['images'] = request()->file('images')->store('products', 'public');
+        } else {
+            unset($data['images']);
+        }
+    
+        $this->repository->update($id, $data);
+    
+        return $this->repository->findWithRelations($id);
     }
+    
     
     public function deleteProduct(int $id): bool
     {
