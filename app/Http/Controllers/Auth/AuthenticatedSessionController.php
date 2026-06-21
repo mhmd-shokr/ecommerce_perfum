@@ -24,6 +24,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        $wishlist = session()->get('wishlist', []);
         $request->authenticate();
 
         $request->session()->regenerate();
@@ -31,6 +32,13 @@ class AuthenticatedSessionController extends Controller
         if($user->hasRole('admin')){
             return redirect()->route('admin.dashboard');
         } 
+        foreach($wishlist as $productId){
+            $user->Wishlists()->firstOrCreate([
+                'product_id'=>$productId,
+            ]);
+        }
+        session()->forget('wishlist');
+        
         return redirect()->route('home');
     }
 

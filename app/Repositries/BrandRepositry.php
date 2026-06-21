@@ -37,4 +37,11 @@ class  BrandRepositry  implements BrandInterFace{
     public function count(){
         return Brand::count();
     }
+    public function getActiveWithProductCount()
+{
+    return Brand::where('status', 1)
+        ->withCount(['products' => fn($q) => $q->where('status', 1)])
+        ->orderBy('name->en')
+        ->get();
+}
 }

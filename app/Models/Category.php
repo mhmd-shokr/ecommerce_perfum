@@ -16,7 +16,7 @@ class Category extends Model
         'images',
         'status'
     ];
-
+  
     public $translatable = ['name'];
     public function parent(){
         return $this->belongsTo(Category::class,'parent_id');

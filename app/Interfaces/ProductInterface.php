@@ -1,6 +1,9 @@
 <?php
 namespace App\Interfaces;
 
+use App\Models\Product;
+
+
 Interface ProductInterface{
     public function all();
     public function find(int $id);
@@ -27,4 +30,6 @@ Interface ProductInterface{
 
     public function findBySlugExceptId(string $slug,int $id);
 
+    public function getRelatedProducts(Product $product);
+    public function filterProducts(array $filters);
 }

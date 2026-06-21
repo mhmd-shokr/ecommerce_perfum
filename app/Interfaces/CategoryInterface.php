@@ -17,6 +17,7 @@ interface CategoryInterface{
     public function getCategoryDistribution():collection;
     public function getPaginateCategories(int $perPage=10);
 
+    public function getActiveWithProductCount();
 
 
 

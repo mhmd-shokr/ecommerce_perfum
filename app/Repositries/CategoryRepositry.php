@@ -65,4 +65,11 @@ class CategoryRepositry implements CategoryInterface{
         return $paginated;
     }
 
+    public function getActiveWithProductCount()
+{
+    return Category::where('status', 1)
+        ->withCount(['products' => fn($q) => $q->where('status', 1)])
+        ->orderBy('name->en')
+        ->get();
+}
 }

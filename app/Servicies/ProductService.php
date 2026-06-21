@@ -1,6 +1,7 @@
 <?php
 namespace App\Servicies;
 use App\Interfaces\ProductInterface;
+use App\Models\Product;
 use App\Servicies\StockService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -94,6 +95,8 @@ class ProductService{
     
         return $this->repository->findWithRelations($id);
     }
+
+
     
     
     public function deleteProduct(int $id): bool
@@ -101,5 +104,12 @@ class ProductService{
         return $this->repository->delete($id);
     }
     
+    public function getProductBySlug(string $slug){
+        return $this->repository->findBySlug($slug);
+    }
+
+    public function getRelatedProduct(Product $product){
+        return $this->repository->getRelatedProducts($product);
+    }
 
 }

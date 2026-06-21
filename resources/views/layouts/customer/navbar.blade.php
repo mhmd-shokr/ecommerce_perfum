@@ -117,8 +117,8 @@
 
         {{-- Links --}}
         <div class="c-nav-links">
-            <a href="#" class="c-nav-link {{ request()->is('/') ? 'active' : '' }}">{{ __('Home') }}</a>
-            <a href="#" class="c-nav-link {{ request()->is('products*') ? 'active' : '' }}">{{ __('Shop') }}</a>
+            <a href="{{ route('home') }}" class="c-nav-link {{ request()->is('/') ? 'active' : '' }}">{{ __('Home') }}</a>
+            <a href="{{ route('shop.products') }}" class="c-nav-link {{ request()->is('products*') ? 'active' : '' }}">{{ __('Shop') }}</a>
             <a href="#" class="c-nav-link {{ request()->is('categories*') ? 'active' : '' }}">{{ __('Collections') }}</a>
             <a href="#" class="c-nav-link {{ request()->is('about*') ? 'active' : '' }}">{{ __('About') }}</a>
         </div>
@@ -128,8 +128,8 @@
 
             {{-- Language --}}
             <div class="c-lang">
-                <a href="#" class="{{ app()->getLocale() == 'en' ? 'active' : '' }}">EN</a>
-                <a href="#" class="{{ app()->getLocale() == 'ar' ? 'active' : '' }}">AR</a>
+                <a href="lang/en" class="{{ app()->getLocale() == 'en' ? 'active' : '' }}">EN</a>
+                <a href="lang/ar" class="{{ app()->getLocale() == 'ar' ? 'active' : '' }}">AR</a>
             </div>
 
             {{-- Search --}}
@@ -138,7 +138,7 @@
             </a>
 
             {{-- Wishlist --}}
-            <a href="#" class="c-icon-btn" title="{{ __('Wishlist') }}">
+            <a href="{{route('wishlist.index') }}"" class="c-icon-btn" title="{{ __('Wishlist') }}">
                 <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </a>
 

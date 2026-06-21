@@ -8,6 +8,7 @@ use App\Models\FragranceNote;
 use App\Models\Size;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 use Spatie\Translatable\HasTranslations;
 
 class Product extends Model
@@ -39,7 +40,6 @@ class Product extends Model
         'status' => 'boolean',
         'is_out_of_stock' => 'boolean',
         'price' => 'decimal:2',
-        'purchase_price' => 'decimal:2',
         'sale_price' => 'decimal:2',
     ];
 
@@ -49,6 +49,14 @@ class Product extends Model
         'short_description',
     ];
 
+    public function getIsNewAttribute()
+    {
+        return $this->created_at>=now()->subDays(7);
+    }
+
+    public function getSaleAttribute(){
+        return $this->sale_price;
+    }
     public function category(){
         return $this->belongsTo(Category::class);
     }
@@ -69,11 +77,15 @@ class Product extends Model
         return $this->belongsToMany(Size::class, 'product_sizes');
     }
 
-public function stockMovements()
-{
-    return $this->hasMany(Stock_movement::class);
-}
-public function reviews(){
-    return $this->hasMany(Review::class);
-}
+    public function stockMovements()
+    {
+        return $this->hasMany(Stock_movement::class);
+    }
+    public function reviews(){
+        return $this->hasMany(Review::class);
+    }
+
+    public function Wishlists(){
+        return $this->hasMany(Wishlist::class);
+    }
 }

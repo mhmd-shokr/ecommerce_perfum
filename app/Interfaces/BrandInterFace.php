@@ -11,5 +11,6 @@ Interface BrandInterFace{
     public function findOrFail(int $id);
     public function count();
     
+    public function getActiveWithProductCount();
 
 }

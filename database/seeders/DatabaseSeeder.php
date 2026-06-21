@@ -7,6 +7,8 @@ use App\Models\User;
 use Database\Seeders\BrandSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\ProductSeeder;
+use Database\Seeders\ReviewSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -30,6 +32,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BrandSeeder::class,
             ProductSeeder::class,
+            ReviewSeeder::class,
         ]);
 
         
