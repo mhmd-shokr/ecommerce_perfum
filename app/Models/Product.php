@@ -29,6 +29,7 @@ class Product extends Model
         'is_bestseller',
         'status',
         'images',
+        'quantity',
         'stock_quantity',
         'low_stock_threshold',
         'is_out_of_stock',

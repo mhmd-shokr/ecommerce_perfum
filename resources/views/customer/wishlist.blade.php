@@ -182,16 +182,32 @@
                                 <span class="stock-text out">{{ __('Out of stock') }}</span>
                             @endif
                         </div>
-
+                        @php
+                        $cart = session('cart', []);
+                        $isOutOfStock=$product->is_out_of_stock;
+                    @endphp
                         <div class="card-actions">
 
-                            {{-- Add to cart --}}
-                            <form action="#" method="POST" style="flex:1;">
-                                @csrf
-                                <button type="submit" class="btn-cart" {{ !$inStock ? 'disabled' : '' }} style="width:100%;">
-                                    {{ $inStock ? __('Add to cart') : __('Out of stock') }}
-                                </button>
-                            </form>
+                            @if ($isOutOfStock)
+                            @elseif(isset($cart[$product->id]) && !$isOutOfStock)
+                                <span class="stock-badge in-stock">
+                                    {{ __('Already In Cart') }}
+                                </span>
+                
+                            @else
+                                <form method="POST" action="{{ route('add.to.cart', $product) }}">
+                                    @csrf
+                                        <button type="submit" class="btn-add-cart" {{ $product->is_out_of_stock ? 'disabled' : '' }}>
+                                            <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                                                <line x1="3" y1="6" x2="21" y2="6" />
+                                                <path d="M16 10a4 4 0 0 1-8 0" />
+                                            </svg>
+                                            {{ __('Add to Cart') }}
+                                        </button>
+                                </form>
+                            @endif
 
                             {{-- Remove from wishlist --}}
                             <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST">

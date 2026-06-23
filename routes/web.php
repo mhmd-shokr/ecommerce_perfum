@@ -3,12 +3,14 @@
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\customer\ReviewController;
 use App\Http\Controllers\Customer\StoreController;
 use App\Http\Controllers\Customer\WishlistController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -25,8 +27,14 @@ Route::post('/product/{product}/review', [ReviewController::class, 'store'])->na
     
 //Wishlist
 Route::post('/wishlist/toggle/{product}',[WishlistController::class,'toggle'])->name('wishlist.toggle');
-Route::get('wishlist',[WishlistController::class,'index'])->name('wishlist.index');
+Route::get('/wishlist',[WishlistController::class,'index'])->name('wishlist.index');
 
+//Cart
+Route::post('/add-to-cart/{product}',[CartController::class,'addToCart'])->name('add.to.cart');
+Route::get("/cart",[CartController::class,'index'])->name('cart.index');
+Route::patch('/cart/update/{productId}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart/clear',          [CartController::class, 'clear'])->name('cart.clear');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

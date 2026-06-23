@@ -365,9 +365,17 @@
             gap: 6px;
         }
 
-        .stock-note.in  { color: var(--success); }
-        .stock-note.low { color: var(--gold); }
-        .stock-note.out { color: var(--danger); }
+        .stock-note.in {
+            color: var(--success);
+        }
+
+        .stock-note.low {
+            color: var(--gold);
+        }
+
+        .stock-note.out {
+            color: var(--danger);
+        }
 
         .stock-dot {
             width: 6px;
@@ -402,10 +410,21 @@
             flex-shrink: 0;
         }
 
-        [dir="rtl"] .trust-item   { flex-direction: row-reverse; }
-        [dir="rtl"] .purchase-row { flex-direction: row-reverse; }
-        [dir="rtl"] .price-row    { flex-direction: row-reverse; }
-        [dir="rtl"] .stock-note   { flex-direction: row-reverse; }
+        [dir="rtl"] .trust-item {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .purchase-row {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .price-row {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .stock-note {
+            flex-direction: row-reverse;
+        }
 
         /* Accordion */
         .accordion {
@@ -527,8 +546,13 @@
             display: block;
         }
 
-        .star { color: var(--gold); }
-        .star.dim { color: var(--text-muted); }
+        .star {
+            color: var(--gold);
+        }
+
+        .star.dim {
+            color: var(--text-muted);
+        }
 
         .review-comment {
             font-size: 13px;
@@ -675,13 +699,13 @@
         }
 
         .star-picker label:hover,
-        .star-picker label:hover ~ label,
-        .star-picker input[type="radio"]:checked ~ label {
+        .star-picker label:hover~label,
+        .star-picker input[type="radio"]:checked~label {
             color: var(--text-muted);
         }
 
         .star-picker:hover label,
-        .star-picker input[type="radio"]:checked + label {
+        .star-picker input[type="radio"]:checked+label {
             color: var(--gold);
         }
 
@@ -823,12 +847,13 @@
 @section('content')
 
     @php
-        $locale     = app()->getLocale();
-        $name        = $product->getTranslation('name', $locale);
+        $locale = app()->getLocale();
+        $name = $product->getTranslation('name', $locale);
         $description = $product->getTranslation('description', $locale);
-        $hasSale     = !is_null($product->sale_price);
+        $hasSale = !is_null($product->sale_price);
         $currentPrice = $hasSale ? $product->sale_price : $product->price;
         $currencySymbol = config('shop.currency_symbol', '$');
+        $isOutOfStock=$product->is_out_of_stock;
     @endphp
 
     {{-- Breadcrumb --}}
@@ -838,7 +863,7 @@
         @if($product->category)
             / <a href="{{ route('shop.products', ['category' => $product->category->id]) }}">
                 {{ $product->category->getTranslation('name', $locale) }}
-              </a>
+            </a>
         @endif
         / <span>{{ $name }}</span>
     </div>
@@ -873,13 +898,11 @@
 
             {{-- Rating --}}
             @php
-                $avgRating    = $product->average_rating ?? 0;
+                $avgRating = $product->average_rating ?? 0;
                 $reviewsCount = $product->reviews_count ?? $product->reviews->count();
             @endphp
             <div class="rating-row">
-                <span class="stars"
-                      aria-label="{{ number_format($avgRating, 1) }} {{ __('out of 5 stars') }}"
-                      role="img">
+                <span class="stars" aria-label="{{ number_format($avgRating, 1) }} {{ __('out of 5 stars') }}" role="img">
                     @for($i = 1; $i <= 5; $i++)
                         @if($i <= round($avgRating))
                             <span aria-hidden="true">★</span>
@@ -921,12 +944,8 @@
                     </div>
                     <div class="size-options" role="group" aria-label="{{ __('Select size') }}">
                         @foreach($product->sizes as $index => $size)
-                            <button
-                                type="button"
-                                class="size-btn {{ $index === 0 ? 'active' : '' }}"
-                                data-size-id="{{ $size->id }}"
-                                data-label="{{ $size->name ?? $size->value }}"
-                                aria-pressed="{{ $index === 0 ? 'true' : 'false' }}">
+                            <button type="button" class="size-btn {{ $index === 0 ? 'active' : '' }}" data-size-id="{{ $size->id }}"
+                                data-label="{{ $size->name ?? $size->value }}" aria-pressed="{{ $index === 0 ? 'true' : 'false' }}">
                                 {{ $size->name ?? $size->value }}
                                 @if(isset($size->price))
                                     <span class="size-btn-price">{{ $currencySymbol }}{{ number_format($size->price, 2) }}</span>
@@ -938,7 +957,8 @@
             @endif
 
             {{-- Stock note --}}
-            <div class="stock-note {{ $product->is_out_of_stock ? 'out' : ($product->stock_quantity <= $product->low_stock_threshold ? 'low' : 'in') }}">
+            <div
+                class="stock-note {{ $product->is_out_of_stock ? 'out' : ($product->stock_quantity <= $product->low_stock_threshold ? 'low' : 'in') }}">
                 <span class="stock-dot" aria-hidden="true"></span>
                 @if($product->is_out_of_stock)
                     {{ __('Out of Stock') }}
@@ -949,197 +969,197 @@
                 @endif
             </div>
 
+            @php
+                $cart = session('cart', []);
+            @endphp
             {{-- Quantity + Add to cart --}}
-            <form method="POST" action="">
-                @csrf
-                <input type="hidden" name="size_id" id="selectedSizeId" value="{{ $product->sizes->first()->id ?? '' }}">
 
-                <div class="purchase-row">
-                    <div class="qty-control">
-                        <button
-                            type="button"
-                            class="qty-btn"
-                            aria-label="{{ __('Decrease quantity') }}"
-                            onclick="changeQty(-1)">−</button>
-                        <input
-                            type="number"
-                            name="quantity"
-                            id="qty"
-                            class="qty-value"
-                            value="1"
-                            min="1"
-                            max="{{ $product->stock_quantity }}"
-                            readonly
-                            aria-label="{{ __('Quantity') }}">
-                        <button
-                            type="button"
-                            class="qty-btn"
-                            aria-label="{{ __('Increase quantity') }}"
-                            onclick="changeQty(1)">+</button>
-                    </div>
+            @if ($isOutOfStock)
+            @elseif(isset($cart[$product->id]) && !$isOutOfStock)
+                <span class="stock-badge in-stock">
+                    {{ __('Already In Cart') }}
+                </span>
 
-                    <button type="submit" class="btn-add-cart" {{ $product->is_out_of_stock ? 'disabled' : '' }}>
-                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                            <line x1="3" y1="6" x2="21" y2="6"/>
-                            <path d="M16 10a4 4 0 0 1-8 0"/>
-                        </svg>
-                        {{ $product->is_out_of_stock ? __('Out of Stock') : __('Add to Cart') }}
-                    </button>
+            @else
+                <form method="POST" action="{{ route('add.to.cart', $product) }}">
+                    @csrf
+                    <input type="hidden" name="size_id" id="selectedSizeId" value="{{ $product->sizes->first()->id ?? '' }}">
 
-                    
-                </div>
-            </form>
-
-            {{-- Trust badges --}}
-            <div class="trust-row">
-                <div class="trust-item">
-                    <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="1" y="3" width="15" height="13"/>
-                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                        <circle cx="5.5" cy="18.5" r="2.5"/>
-                        <circle cx="18.5" cy="18.5" r="2.5"/>
-                    </svg>
-                    {{ __('Free shipping on orders over :amount', ['amount' => $currencySymbol . '100']) }}
-                </div>
-                <div class="trust-item">
-                    <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                    {{ __('100% authentic, sealed product') }}
-                </div>
-                <div class="trust-item">
-                    <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <polyline points="1 4 1 10 7 10"/>
-                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-                    </svg>
-                    {{ __('Easy 30-day returns') }}
-                </div>
-            </div>
-
-            {{-- Accordion --}}
-            <div class="accordion">
-
-                {{-- Fragrance notes --}}
-                @if($product->fragranceNotes && $product->fragranceNotes->count())
-                    <div class="accordion-item open">
-                        <div class="accordion-head" onclick="this.parentElement.classList.toggle('open')" role="button" tabindex="0">
-                            <span class="accordion-title">{{ __('Fragrance Notes') }}</span>
-                            <svg class="accordion-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-                                <line x1="12" y1="5" x2="12" y2="19"/>
-                                <line x1="5" y1="12" x2="19" y2="12"/>
+                    <div class="purchase-row">
+                        <div class="qty-control">
+                            <button type="button" class="qty-btn" aria-label="{{ __('Decrease quantity') }}"
+                                onclick="changeQty(-1)">−</button>
+                            <input type="number" name="quantity" id="qty" class="qty-value" value="1" min="1"
+                                max="{{ $product->stock_quantity }}" readonly aria-label="{{ __('Quantity') }}">
+                            <button type="button" class="qty-btn" aria-label="{{ __('Increase quantity') }}"
+                                onclick="changeQty(1)">+</button>
+                        </div>
+                        <button type="submit" class="btn-add-cart" {{ $product->is_out_of_stock ? 'disabled' : '' }}>
+                            <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <path d="M16 10a4 4 0 0 1-8 0" />
                             </svg>
-                        </div>
-                        <div class="accordion-body">
-                            <div class="notes-grid">
-                                @foreach(['top' => __('Top'), 'heart' => __('Heart'), 'base' => __('Base')] as $type => $label)
-                                    @php $notes = $product->fragranceNotes->where('pivot.type', $type); @endphp
-                                    @if($notes->count())
-                                        <div class="note-col">
-                                            <div class="note-label">{{ $label }}</div>
-                                            <div class="note-val">{{ $notes->pluck('name')->join(', ') }}</div>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                @endif
+                            {{ __('Add to Cart') }}
+                        </button>
+                </form>
+            @endif
 
-                {{-- Description --}}
-                <div class="accordion-item">
-                    <div class="accordion-head" onclick="this.parentElement.classList.toggle('open')" role="button" tabindex="0">
-                        <span class="accordion-title">{{ __('Description') }}</span>
-                        <svg class="accordion-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                    </div>
-                    <div class="accordion-body">{{ $description }}</div>
-                </div>
+        </div>
 
-                {{-- Shipping & Returns --}}
-                <div class="accordion-item">
-                    <div class="accordion-head" onclick="this.parentElement.classList.toggle('open')" role="button" tabindex="0">
-                        <span class="accordion-title">{{ __('Shipping & Returns') }}</span>
-                        <svg class="accordion-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
+        {{-- Trust badges --}}
+        <div class="trust-row">
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <rect x="1" y="3" width="15" height="13" />
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                    <circle cx="5.5" cy="18.5" r="2.5" />
+                    <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+                {{ __('Free shipping on orders over :amount', ['amount' => $currencySymbol . '100']) }}
+            </div>
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                {{ __('100% authentic, sealed product') }}
+            </div>
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                {{ __('Easy 30-day returns') }}
+            </div>
+        </div>
+
+        {{-- Accordion --}}
+        <div class="accordion">
+
+            {{-- Fragrance notes --}}
+            @if($product->fragranceNotes && $product->fragranceNotes->count())
+                <div class="accordion-item open">
+                    <div class="accordion-head" onclick="this.parentElement.classList.toggle('open')" role="button"
+                        tabindex="0">
+                        <span class="accordion-title">{{ __('Fragrance Notes') }}</span>
+                        <svg class="accordion-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"
+                            aria-hidden="true">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
                     </div>
                     <div class="accordion-body">
-                        {{ __('Orders ship within 1-2 business days. Free standard shipping on orders over :amount. Returns accepted within 30 days of delivery for unopened products.', ['amount' => $currencySymbol . '100']) }}
+                        <div class="notes-grid">
+                            @foreach(['top' => __('Top'), 'heart' => __('Heart'), 'base' => __('Base')] as $type => $label)
+                                @php $notes = $product->fragranceNotes->where('pivot.type', $type); @endphp
+                                @if($notes->count())
+                                    <div class="note-col">
+                                        <div class="note-label">{{ $label }}</div>
+                                        <div class="note-val">{{ $notes->pluck('name')->join(', ') }}</div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
                     </div>
                 </div>
+            @endif
 
+            {{-- Description --}}
+            <div class="accordion-item">
+                <div class="accordion-head" onclick="this.parentElement.classList.toggle('open')" role="button"
+                    tabindex="0">
+                    <span class="accordion-title">{{ __('Description') }}</span>
+                    <svg class="accordion-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"
+                        aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                </div>
+                <div class="accordion-body">{{ $description }}</div>
             </div>
 
-            {{-- Reviews --}}
-            <div class="reviews-section" id="reviews">
-                <div class="accordion-title" style="margin-bottom:14px;">
-                    {{ __('Customer Reviews') }} ({{ $reviewsCount }})
+            {{-- Shipping & Returns --}}
+            <div class="accordion-item">
+                <div class="accordion-head" onclick="this.parentElement.classList.toggle('open')" role="button"
+                    tabindex="0">
+                    <span class="accordion-title">{{ __('Shipping & Returns') }}</span>
+                    <svg class="accordion-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"
+                        aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
                 </div>
+                <div class="accordion-body">
+                    {{ __('Orders ship within 1-2 business days. Free standard shipping on orders over :amount. Returns accepted within 30 days of delivery for unopened products.', ['amount' => $currencySymbol . '100']) }}
+                </div>
+            </div>
 
-                @forelse($product->reviews as $review)
-                    <div class="review-item">
-                        <div class="review-head">
-                            <span class="review-author">{{ $review->user->name ?? __('Anonymous') }}</span>
-                            <span class="review-date">{{ $review->created_at->format('d M Y') }}</span>
-                        </div>
-                        <span class="review-stars"
-                              aria-label="{{ $review->rating }} {{ __('out of 5 stars') }}"
-                              role="img">
-                            @for($i = 1; $i <= 5; $i++)
-                                <span class="{{ $i <= $review->rating ? 'star' : 'star dim' }}" aria-hidden="true">★</span>
-                            @endfor
-                        </span>
-                        <div class="review-comment">{{ $review->comment }}</div>
+        </div>
+
+        {{-- Reviews --}}
+        <div class="reviews-section" id="reviews">
+            <div class="accordion-title" style="margin-bottom:14px;">
+                {{ __('Customer Reviews') }} ({{ $reviewsCount }})
+            </div>
+
+            @forelse($product->reviews as $review)
+                <div class="review-item">
+                    <div class="review-head">
+                        <span class="review-author">{{ $review->user->name ?? __('Anonymous') }}</span>
+                        <span class="review-date">{{ $review->created_at->format('d M Y') }}</span>
                     </div>
-                @empty
-                    <div class="no-reviews">{{ __('No reviews yet. Be the first to review this product.') }}</div>
-                @endforelse
-
-                {{-- Write a review --}}
-                <div class="review-form-wrap">
-                    @auth
-                        <div class="review-form-title">{{ __('Write a Review') }}</div>
-                        <form method="POST" action="{{ route('store.review', $product->id) }}">
-                            @csrf
-
-                            <label class="review-form-label" for="reviewRating">{{ __('Your Rating') }}</label>
-                            <select name="rating" id="reviewRating" class="review-form-select">
-                                @foreach([5, 4, 3, 2, 1] as $r)
-                                    <option value="{{ $r }}">
-                                        {{ $r }} {{ $r === 1 ? __('star') : __('stars') }}
-                                    </option>
-                                @endforeach
-                            </select>
-
-                            <label class="review-form-label" for="reviewComment">{{ __('Your Review') }}</label>
-                            <textarea
-                                name="comment"
-                                id="reviewComment"
-                                class="review-form-textarea"
-                                placeholder="{{ __('Share your experience with this product…') }}"
-                                required></textarea>
-
-                            <button type="submit" class="review-form-submit">
-                                {{ __('Submit Review') }}
-                            </button>
-                        </form>
-                    @endauth
-
-                    @guest
-                        <p class="review-login-note">
-                            <a href="{{ route('login') }}">{{ __('Log in') }}</a>
-                            {{ __('to write a review.') }}
-                        </p>
-                    @endguest
+                    <span class="review-stars" aria-label="{{ $review->rating }} {{ __('out of 5 stars') }}" role="img">
+                        @for($i = 1; $i <= 5; $i++)
+                            <span class="{{ $i <= $review->rating ? 'star' : 'star dim' }}" aria-hidden="true">★</span>
+                        @endfor
+                    </span>
+                    <div class="review-comment">{{ $review->comment }}</div>
                 </div>
+            @empty
+                <div class="no-reviews">{{ __('No reviews yet. Be the first to review this product.') }}</div>
+            @endforelse
 
-            </div>{{-- /reviews-section --}}
+            {{-- Write a review --}}
+            <div class="review-form-wrap">
+                @auth
+                    <div class="review-form-title">{{ __('Write a Review') }}</div>
+                    <form method="POST" action="{{ route('store.review', $product->id) }}">
+                        @csrf
 
-        </div>{{-- /product-info --}}
+                        <label class="review-form-label" for="reviewRating">{{ __('Your Rating') }}</label>
+                        <select name="rating" id="reviewRating" class="review-form-select">
+                            @foreach([5, 4, 3, 2, 1] as $r)
+                                <option value="{{ $r }}">
+                                    {{ $r }} {{ $r === 1 ? __('star') : __('stars') }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <label class="review-form-label" for="reviewComment">{{ __('Your Review') }}</label>
+                        <textarea name="comment" id="reviewComment" class="review-form-textarea"
+                            placeholder="{{ __('Share your experience with this product…') }}" required></textarea>
+
+                        <button type="submit" class="review-form-submit">
+                            {{ __('Submit Review') }}
+                        </button>
+                    </form>
+                @endauth
+
+                @guest
+                    <p class="review-login-note">
+                        <a href="{{ route('login') }}">{{ __('Log in') }}</a>
+                        {{ __('to write a review.') }}
+                    </p>
+                @endguest
+            </div>
+
+        </div>{{-- /reviews-section --}}
+
+    </div>{{-- /product-info --}}
     </div>{{-- /product-main --}}
 
     {{-- ══ RELATED PRODUCTS ══ --}}
@@ -1152,9 +1172,9 @@
             <div class="related-grid">
                 @foreach($relatedProducts as $related)
                     @php
-                        $relatedName    = $related->getTranslation('name', $locale);
+                        $relatedName = $related->getTranslation('name', $locale);
                         $relatedHasSale = !is_null($related->sale_price);
-                        $relatedPrice   = $relatedHasSale ? $related->sale_price : $related->price;
+                        $relatedPrice = $relatedHasSale ? $related->sale_price : $related->price;
                     @endphp
                     <a href="{{ route('store.products.show', $related->slug) }}" class="product-card">
                         <div class="product-img">

@@ -44,7 +44,6 @@
             line-height: 1.7;
         }
 
-        
         .breadcrumb-bar {
             max-width: 1440px;
             margin: 0 auto;
@@ -68,7 +67,6 @@
             color: var(--gold-dim);
         }
 
-       
         .shop-layout {
             max-width: 1440px;
             margin: 0 auto;
@@ -78,7 +76,6 @@
             gap: 32px;
         }
 
-        
         .filters {
             position: sticky;
             top: 90px;
@@ -218,7 +215,6 @@
             transform: translateY(1px);
         }
 
-       
         .shop-toolbar {
             display: flex;
             align-items: center;
@@ -327,7 +323,6 @@
             fill: none;
         }
 
-       
         .products-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -459,6 +454,7 @@
             fill: var(--gold);
         }
 
+        /* ── CARD OVERLAY ── */
         .card-overlay {
             position: absolute;
             bottom: 0;
@@ -472,6 +468,13 @@
 
         .product-card:hover .card-overlay {
             transform: translateY(0);
+        }
+
+        /* ── ADD TO CART FORM inside overlay ── */
+        .atc-form {
+            margin: 0;
+            padding: 0;
+            width: 100%;
         }
 
         .btn-atc {
@@ -488,6 +491,7 @@
             font-family: Arial, sans-serif;
             cursor: pointer;
             transition: background 0.2s;
+            display: block;
         }
 
         .btn-atc:hover {
@@ -629,6 +633,30 @@
             font-family: Arial, sans-serif;
         }
 
+        /* ── CART SUCCESS FLASH ── */
+        .cart-flash {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-size: 13px;
+            color: var(--text-primary);
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.25s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         .shop-pagination {
             display: flex;
             align-items: center;
@@ -683,7 +711,6 @@
             fill: none;
         }
 
-        
         @media (max-width: 900px) {
             .shop-layout {
                 grid-template-columns: 1fr;
@@ -734,6 +761,14 @@
 
 @section('content')
 
+    {{-- ── CART SUCCESS FLASH MESSAGE ── --}}
+    @if(session('cart_success'))
+        <div class="cart-flash" id="cartFlash">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;"></span>
+            {{ session('cart_success') }}
+        </div>
+    @endif
+
     {{-- Breadcrumb --}}
     <div class="breadcrumb-bar">
         <a href="{{ route('home') }}">{{ __('Home') }}</a> / <span>{{ __('Shop') }}</span>
@@ -762,7 +797,8 @@
                     </div>
                     @foreach($categories as $cat)
                         <label class="filter-option">
-                            <input type="checkbox" name="category[]" value="{{ $cat->id }}" {{ in_array($cat->id, (array) request('category')) ? 'checked' : '' }}>
+                            <input type="checkbox" name="category[]" value="{{ $cat->id }}"
+                                {{ in_array($cat->id, (array) request('category')) ? 'checked' : '' }}>
                             {{ $cat->getTranslation('name', app()->getLocale()) }}
                             <span class="filter-option-count">{{ $cat->products_count ?? 0 }}</span>
                         </label>
@@ -773,7 +809,8 @@
                     <div class="filter-title">{{ __('Brand') }}</div>
                     @foreach($brands as $brand)
                         <label class="filter-option">
-                            <input type="checkbox" name="brand[]" value="{{ $brand->id }}" {{ in_array($brand->id, (array) request('brand')) ? 'checked' : '' }}>
+                            <input type="checkbox" name="brand[]" value="{{ $brand->id }}"
+                                {{ in_array($brand->id, (array) request('brand')) ? 'checked' : '' }}>
                             {{ $brand->getTranslation('name', app()->getLocale()) }}
                         </label>
                     @endforeach
@@ -794,7 +831,8 @@
                     <div class="filter-title">{{ __('Rating') }}</div>
                     @for($i = 5; $i >= 3; $i--)
                         <label class="filter-option">
-                            <input type="radio" name="rating" value="{{ $i }}" {{ request('rating') == $i ? 'checked' : '' }}>
+                            <input type="radio" name="rating" value="{{ $i }}"
+                                {{ request('rating') == $i ? 'checked' : '' }}>
                             <span class="rating-stars">
                                 @for($s = 1; $s <= 5; $s++)
                                     @if($s <= $i)★@else<span class="dim">★</span>@endif
@@ -866,13 +904,14 @@
                             {{ __('Price: Low to High') }}</option>
                         <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>
                             {{ __('Price: High to Low') }}</option>
-                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>{{ __('Newest First') }}
-                        </option>
-                        <option value="top_rated" {{ request('sort') == 'top_rated' ? 'selected' : '' }}>{{ __('Top Rated') }}
-                        </option>
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>
+                            {{ __('Newest First') }}</option>
+                        <option value="top_rated" {{ request('sort') == 'top_rated' ? 'selected' : '' }}>
+                            {{ __('Top Rated') }}</option>
                     </select>
                     <div class="view-toggle">
-                        <button class="view-btn active" id="viewGrid" type="button" aria-label="{{ __('Grid view') }}">
+                        <button class="view-btn active" id="viewGrid" type="button"
+                            aria-label="{{ __('Grid view') }}">
                             <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="7" height="7" />
                                 <rect x="14" y="3" width="7" height="7" />
@@ -880,7 +919,8 @@
                                 <rect x="14" y="14" width="7" height="7" />
                             </svg>
                         </button>
-                        <button class="view-btn" id="viewList" type="button" aria-label="{{ __('List view') }}">
+                        <button class="view-btn" id="viewList" type="button"
+                            aria-label="{{ __('List view') }}">
                             <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="8" y1="6" x2="21" y2="6" />
                                 <line x1="8" y1="12" x2="21" y2="12" />
@@ -898,26 +938,38 @@
 
                 @forelse($products as $product)
                     @php
-                        $locale = app()->getLocale();
-                        $productName = $product->getTranslation('name', $locale);
-                        $hasSale = !is_null($product->sale_price);
+                        $locale       = app()->getLocale();
+                        $productName  = $product->getTranslation('name', $locale);
+                        $hasSale      = !is_null($product->sale_price);
                         $displayPrice = $hasSale ? $product->sale_price : $product->price;
-                        $rating = round($product->reviews_avg_rating ?? 0);
-                        $reviewCount = $product->reviews_count ?? 0;
+                        $rating       = round($product->reviews_avg_rating ?? 0);
+                        $reviewCount  = $product->reviews_count ?? 0;
                         $isOutOfStock = $product->is_out_of_stock ?? false;
-                        $isNew = $product->is_new ?? false;
-
-                        $wishlistIds = session('wishlist', []);
-                        $inWishlist = in_array($product->id, $wishlistIds);
+                        $isNew        = $product->is_new ?? false;
+                        $wishlistIds  = session('wishlist', []);
+                        $inWishlist   = in_array($product->id, $wishlistIds);
+                        $cart=session('cart',[]);
                     @endphp
 
-                    <a href="{{ route('store.products.show', $product->slug) }}" class="product-card">
+                    {{--
+                        The whole card is wrapped in a <div> NOT an <a> tag,
+                        because we now have a real <form> inside it.
+                        Nested interactive elements inside <a> cause broken behaviour.
+                        The card-link <a> sits inside instead.
+                    --}}
+                    <div class="product-card">
 
-                        {{-- IMAGE --}}
+                        {{-- IMAGE AREA --}}
                         <div class="card-img {{ $isOutOfStock ? 'out-of-stock' : '' }}">
 
+                            <a href="{{ route('store.products.show', $product->slug) }}"
+                               style="display:block;width:100%;height:100%;position:absolute;inset:0;z-index:1;"
+                               aria-label="{{ $productName }}">
+                            </a>
+
                             @if($product->images)
-                                <img src="{{ asset('storage/' . $product->images) }}" alt="{{ $productName }}" loading="lazy">
+                                <img src="{{ asset('storage/' . $product->images) }}"
+                                     alt="{{ $productName }}" loading="lazy">
                             @else
                                 <span aria-hidden="true">🧴</span>
                             @endif
@@ -928,37 +980,49 @@
                                 <span class="card-tag tag-sale">{{ __('Sale') }}</span>
                             @endif
 
+                            {{-- WISHLIST BUTTON --}}
                             <button type="button" class="wl-btn {{ $inWishlist ? 'active' : '' }}"
                                 data-product-id="{{ $product->id }}"
                                 aria-label="{{ $inWishlist ? __('Remove from wishlist') : __('Add to wishlist') }}"
-                                aria-pressed="{{ $inWishlist ? 'true' : 'false' }}">
-                                <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                                    aria-hidden="true">
-                                    <path
-                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                aria-pressed="{{ $inWishlist ? 'true' : 'false' }}"
+                                style="z-index:10;">
+                                <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"
+                                     stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                                 </svg>
                             </button>
 
-                            {{-- Hidden form for wishlist POST request --}}
+                            {{-- Hidden form for wishlist AJAX --}}
                             <form class="wl-form" data-product-id="{{ $product->id }}" method="POST"
-                                action="{{ route('wishlist.toggle', $product->id) }}" style="display:none;">
+                                  action="{{ route('wishlist.toggle', $product->id) }}"
+                                  style="display:none;">
                                 @csrf
                             </form>
+                            
 
-                            @if(!$isOutOfStock)
-                                <div class="card-overlay">
-                                    <button type="button" class="btn-atc" data-product-id="{{ $product->id }}"
-                                        data-product-name="{{ $productName }}" data-product-price="{{ $displayPrice }}"
-                                        aria-label="{{ __('Add :name to cart', ['name' => $productName]) }}">
-                                        {{ __('Add to Cart') }}
-                                    </button>
-                                </div>
-                            @endif
 
-                        </div>
 
-                        {{-- CARD BODY --}}
-                        <div class="card-body">
+@if(!$isOutOfStock)
+    @if(!isset($cart[$product->id]))
+
+        <div class="card-overlay" style="z-index:5;">
+            <form method="POST" action="{{ route('add.to.cart', $product->id) }}">
+                @csrf
+                <button type="submit" class="btn-atc">
+                    {{ __('Add to Cart') }}
+                </button>
+            </form>
+        </div>
+    @else
+    <span class="stock-badge in-stock">
+        {{ __('Already In Cart') }}
+    </span>
+@endif
+@endif              </div>
+
+                        {{-- CARD BODY (links to product page) --}}
+                        <a href="{{ route('store.products.show', $product->slug) }}"
+                           class="card-body" style="display:block;text-decoration:none;">
 
                             @if($product->category)
                                 <div class="card-cat">
@@ -969,7 +1033,9 @@
                             <div class="card-name">{{ $productName }}</div>
 
                             <div class="card-rating">
-                                <span class="card-stars" aria-label="{{ $rating }} {{ __('out of 5 stars') }}" role="img">
+                                <span class="card-stars"
+                                      aria-label="{{ $rating }} {{ __('out of 5 stars') }}"
+                                      role="img">
                                     @for($i = 1; $i <= 5; $i++)
                                         @if($i <= $rating)
                                             <span aria-hidden="true">★</span>
@@ -998,9 +1064,9 @@
                                 @endif
                             </div>
 
-                        </div>
+                        </a>
 
-                    </a>
+                    </div>{{-- /.product-card --}}
 
                 @empty
                     <div class="empty-state">
@@ -1023,7 +1089,8 @@
                             </svg>
                         </span>
                     @else
-                        <a href="{{ $products->previousPageUrl() }}" class="page-btn" aria-label="{{ __('Previous page') }}">
+                        <a href="{{ $products->previousPageUrl() }}" class="page-btn"
+                           aria-label="{{ __('Previous page') }}">
                             <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="15 18 9 12 15 6" />
                             </svg>
@@ -1032,9 +1099,9 @@
 
                     @php
                         $current = $products->currentPage();
-                        $last = $products->lastPage();
-                        $start = max(1, $current - 1);
-                        $end = min($last, $current + 1);
+                        $last    = $products->lastPage();
+                        $start   = max(1, $current - 1);
+                        $end     = min($last, $current + 1);
                     @endphp
 
                     @if($start > 1)
@@ -1043,8 +1110,9 @@
                     @endif
 
                     @for($page = $start; $page <= $end; $page++)
-                        <a href="{{ $products->url($page) }}" class="page-btn {{ $page == $current ? 'active' : '' }}"
-                            aria-current="{{ $page == $current ? 'page' : 'false' }}">
+                        <a href="{{ $products->url($page) }}"
+                           class="page-btn {{ $page == $current ? 'active' : '' }}"
+                           aria-current="{{ $page == $current ? 'page' : 'false' }}">
                             {{ $page }}
                         </a>
                     @endfor
@@ -1055,7 +1123,8 @@
                     @endif
 
                     @if($products->hasMorePages())
-                        <a href="{{ $products->nextPageUrl() }}" class="page-btn" aria-label="{{ __('Next page') }}">
+                        <a href="{{ $products->nextPageUrl() }}" class="page-btn"
+                           aria-label="{{ __('Next page') }}">
                             <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6" />
                             </svg>
@@ -1075,7 +1144,7 @@
 
     </div>
 
-    {{-- Toast notification for wishlist feedback --}}
+    {{-- Toast for wishlist --}}
     <div id="wlToast" style="
             position:fixed; bottom:28px; right:28px; z-index:9999;
             background:var(--bg-card); border:1px solid var(--border);
@@ -1097,35 +1166,39 @@
 
             const CSRF = document.querySelector('meta[name="csrf-token"]')?.content;
 
+            // ── AUTO-HIDE CART FLASH ──
+            var cartFlash = document.getElementById('cartFlash');
+            if (cartFlash) {
+                setTimeout(function () {
+                    cartFlash.style.transition = 'opacity 0.4s';
+                    cartFlash.style.opacity = '0';
+                    setTimeout(function () { cartFlash.remove(); }, 400);
+                }, 3000);
+            }
+
+            // ── TOAST (used only by wishlist) ──
             function showToast(msg) {
-                const toast = document.getElementById('wlToast');
-                const msgEl = document.getElementById('wlToastMsg');
+                var toast  = document.getElementById('wlToast');
+                var msgEl  = document.getElementById('wlToastMsg');
                 msgEl.textContent = msg;
-                toast.style.opacity = '1';
+                toast.style.opacity   = '1';
                 toast.style.transform = 'translateY(0)';
                 clearTimeout(toast._timer);
                 toast._timer = setTimeout(function () {
-                    toast.style.opacity = '0';
+                    toast.style.opacity   = '0';
                     toast.style.transform = 'translateY(12px)';
                 }, 2800);
             }
 
-            // ── WISHLIST TOGGLE (AJAX — no page reload) ──
+            // ── WISHLIST TOGGLE (AJAX) ──
             document.querySelectorAll('.wl-btn').forEach(function (btn) {
                 btn.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    const productId = this.dataset.productId;
-                    const form = document.querySelector('.wl-form[data-product-id="' + productId + '"]');
-                    if (!form) {
-                        console.error('No wishlist form found for product', productId);
-                        return;
-                    }
-                    if (!CSRF) {
-                        console.error('Missing <meta name="csrf-token"> in <head> — wishlist request will fail.');
-                        return;
-                    }
+                    var productId = this.dataset.productId;
+                    var form = document.querySelector('.wl-form[data-product-id="' + productId + '"]');
+                    if (!form || !CSRF) return;
 
                     btn.disabled = true;
 
@@ -1137,43 +1210,30 @@
                             'X-Requested-With': 'XMLHttpRequest',
                         }
                     })
-                        .then(function (r) {
-                            if (!r.ok) throw new Error('Wishlist request failed: ' + r.status);
-                            return r.json();
-                        })
-                        .then(function (data) {
-                            if (data.success) {
-                                const isNowActive = data.in_wishlist;
-
-                                btn.classList.toggle('active', isNowActive);
-                                btn.setAttribute('aria-pressed', isNowActive ? 'true' : 'false');
-                                btn.setAttribute('aria-label', isNowActive
-                                    ? '{{ __("Remove from wishlist") }}'
-                                    : '{{ __("Add to wishlist") }}'
-                                );
-
-                                document.querySelectorAll('[data-wishlist-count]').forEach(function (el) {
-                                    el.textContent = data.count;
-                                    el.style.display = data.count > 0 ? '' : 'none';
-                                });
-
-                                showToast(data.message);
-                            }
-                        })
-                        .catch(function (err) {
-                            console.error(err);
-                            showToast('{{ __("Something went wrong, please try again.") }}');
-                        })
-                        .finally(function () { btn.disabled = false; });
-                });
-            });
-
-            // ── ADD TO CART ──
-            document.querySelectorAll('.btn-atc').forEach(function (btn) {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showToast('{{ __("Added to cart!") }}');
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        if (data.success) {
+                            var active = data.in_wishlist;
+                            btn.classList.toggle('active', active);
+                            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+                            btn.setAttribute('aria-label', active
+                                ? '{{ addslashes(__("Remove from wishlist")) }}'
+                                : '{{ addslashes(__("Add to wishlist")) }}'
+                            );
+                            document.querySelectorAll('[data-wishlist-count]').forEach(function (el) {
+                                el.textContent  = data.count;
+                                el.style.display = data.count > 0 ? '' : 'none';
+                            });
+                            showToast(data.message);
+                        }
+                    })
+                    .catch(function () {
+                        showToast('{{ addslashes(__("Something went wrong, please try again.")) }}');
+                    })
+                    .finally(function () { btn.disabled = false; });
                 });
             });
 
@@ -1192,9 +1252,9 @@
                 });
             }
 
-            // ── MOBILE FILTER SIDEBAR TOGGLE ──
+            // ── MOBILE FILTER TOGGLE ──
             var mobileBtn = document.getElementById('mobileFilterBtn');
-            var sidebar = document.getElementById('filtersSidebar');
+            var sidebar   = document.getElementById('filtersSidebar');
             if (mobileBtn && sidebar) {
                 mobileBtn.addEventListener('click', function () {
                     sidebar.classList.toggle('mobile-open');
@@ -1204,8 +1264,7 @@
             // ── GRID / LIST VIEW TOGGLE ──
             var viewGrid = document.getElementById('viewGrid');
             var viewList = document.getElementById('viewList');
-            var grid = document.getElementById('productsGrid');
-
+            var grid     = document.getElementById('productsGrid');
             if (viewGrid && viewList && grid) {
                 viewGrid.addEventListener('click', function () {
                     viewGrid.classList.add('active');
@@ -1219,14 +1278,12 @@
                 });
             }
 
-            // ── PRICE FILTER ──
+            // ── PRICE FILTER — disable empty inputs before submit ──
             var filterForm = document.querySelector('#filtersSidebar form');
             if (filterForm) {
                 filterForm.addEventListener('submit', function () {
                     this.querySelectorAll('input[type="number"]').forEach(function (input) {
-                        if (input.value.trim() === '') {
-                            input.disabled = true;
-                        }
+                        if (input.value.trim() === '') input.disabled = true;
                     });
                 });
             }
