@@ -54,7 +54,6 @@ class ProductFactory extends Factory
             'stock_quantity' => $stock,
             'low_stock_threshold' => $this->faker->numberBetween(3, 10),
             'is_out_of_stock' => $stock === 0,
-            'quantity' => $this->faker->numberBetween(1, 100),            'gender' => $this->faker->randomElement(['men', 'women', 'unisex']),
 
             'is_featured' => $this->faker->boolean(),
             'is_bestseller' => $this->faker->boolean(),

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,11 +26,14 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $wishlist = session()->get('wishlist', []);
+        $cart = session()->get('cart', []);
+
         $request->authenticate();
 
         $request->session()->regenerate();
         $user=auth()->user();
         if($user->hasRole('admin')){
+            session()->forget(['wishlist', 'cart']);
             return redirect()->route('admin.dashboard');
         } 
         foreach($wishlist as $productId){
@@ -37,8 +41,26 @@ class AuthenticatedSessionController extends Controller
                 'product_id'=>$productId,
             ]);
         }
-        session()->forget('wishlist');
-        
+
+        foreach($cart as $productId=>$item){
+            $product=Product::find($productId);
+            if (!$product) continue;
+
+            $qty=max(1,(int)$item['quantity']);
+            $cartItem=$user->carts()->where('product_id',$productId)
+            ->first();
+            if($cartItem){
+                $merged=min($cartItem->quantity+$qty,$product->stock_quantity);
+                $cartItem->update(['quantity'=>$merged]);
+            }else{
+                $user->carts()->create([
+                    'product_id' => $productId,
+                    'quantity' => min($qty,$product->stock_quantity),
+                ]);
+            }
+        }
+        session()->forget(['wishlist', 'cart']);
+
         return redirect()->route('home');
     }
 

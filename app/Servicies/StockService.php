@@ -20,7 +20,8 @@ class StockService{
         return DB::transaction(function()use($product,$type,$quantity,$note){
             //Create movement
             Stock_movement::create
-            ([ 'product_id' => $product->id, 
+            ([
+            'product_id' => $product->id, 
             'user_id' => Auth::id(), 
             'type' => $type, 
             'quantity' => $quantity,

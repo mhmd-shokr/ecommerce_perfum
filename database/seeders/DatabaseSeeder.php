@@ -10,6 +10,8 @@ use Database\Seeders\PermissionSeeder;
 use Database\Seeders\ProductSeeder;
 use Database\Seeders\ReviewSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\ShippingZoneSeeder;
+use Database\Seeders\ShippingZonesSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -33,6 +35,7 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             ProductSeeder::class,
             ReviewSeeder::class,
+            ShippingZoneSeeder::class,
         ]);
 
         

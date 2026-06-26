@@ -4,12 +4,14 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\customer\ReviewController;
 use App\Http\Controllers\Customer\StoreController;
 use App\Http\Controllers\Customer\WishlistController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -40,6 +42,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //checkout
+    Route::get('checkout', [CheckoutController::class, 'index'])
+        ->name('checkout.index');
+
+    Route::post('checkout', [CheckoutController::class, 'store'])
+        ->name('checkout.store');
+
+    Route::get('checkout/confirmed/{order}', [CheckoutController::class, 'confirmed'])
+        ->name('checkout.confirmed');
+
+    Route::post('checkout/shipping-cost', [CheckoutController::class, 'shippingCost'])
+        ->name('checkout.shipping.cost');
 });
 
 Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group(function(){
