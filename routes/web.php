@@ -8,6 +8,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\customer\ReviewController;
 use App\Http\Controllers\Customer\StoreController;
 use App\Http\Controllers\Customer\WishlistController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,16 @@ Route::middleware('auth')->group(function () {
 
     Route::post('checkout/shipping-cost', [CheckoutController::class, 'shippingCost'])
         ->name('checkout.shipping.cost');
+
+    //payment
+    Route::prefix('payment')->name('payment.')->group(function(){
+        // Route::get('{order}',[PaymentController::class,'index'])->name('index');
+        Route::get('{order}/cash',[PaymentController::class,'cash'])->name('cash');
+        Route::get('{order}/stripe',[PaymentController::class,'stripe'])->name('stripe');
+        Route::get('{order}/stripe-confirm',[PaymentController::class,'stripeConfirm'])->name('stripe.confirm');
+        Route::get('{order}/failed',[PaymentController::class,'failed'])->name('failed');
+
+    });
 });
 
 Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group(function(){

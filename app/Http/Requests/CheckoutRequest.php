@@ -34,6 +34,7 @@ class CheckoutRequest extends FormRequest
             'building'    => 'nullable|string|max:50',
             'floor'       => 'nullable|string|max:50',
             'notes'       => 'nullable|string|max:500',
+            'payment_method' => 'required|in:cash,stripe',
         ];
     }
 }

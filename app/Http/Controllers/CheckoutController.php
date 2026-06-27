@@ -26,9 +26,14 @@ class CheckoutController extends Controller
         try{
             $validated=$request->validated();
             $order=$this->checkout->placeOrder(Auth::id(),$validated);
+
+            if($validated['payment_method']==='cash'){
+                return redirect()
+                ->route('payment.cash', $order->id);
+            }
             return redirect()
-                ->route('checkout.confirmed', $order->id)
-                ->with('success', __('Order placed successfully'));
+            ->route('payment.stripe', $order->id);
+            
         }catch(\Exception $e){
                 return back()
                     ->withInput()

@@ -1,0 +1,76 @@
+<?php
+namespace App\Servicies;
+
+use App\Models\Order;
+use App\Repositries\CheckoutRepository;
+use Illuminate\Support\Facades\DB;
+
+class PaymentService{
+    public function __construct(
+        protected StockService $stock_service,
+        protected CheckoutRepository $CheckRepo,
+        protected StripeService $stripeService,
+    ){}
+
+    public function decrementAndClear(Order $order){
+        foreach($order->items as $item){
+            if($item->product){
+                $this->stock_service->decrease(
+                    $item->product,
+                    $item->quantity,
+                    'order #'.$order->order_number
+                );
+            }
+        }
+        $this->CheckRepo->clearCart($order->user_id);
+    }
+
+    //when cash on delivery
+    public function handelCash(Order $order){
+        DB::transaction(function() use($order){
+            $order->update([
+                'status'=>'processing',
+                'payment_status'=>'pending',
+            ]);
+            $this->decrementAndClear($order);
+        });
+    }
+
+    public function initiateStripe(Order $order){
+        //create paymentIntent
+        $paymentIntent =$this->stripeService->createPaymentIntent($order);
+        
+
+        //store payment reference
+        $order->update([
+            'payment_reference'=>$paymentIntent->id,
+        ]);
+
+        //return client secret
+        return $paymentIntent->client_secret;
+    }
+
+    public function confirmStripe(Order $order , string $paymentIntentId){
+        DB::transaction(function() use($order,$paymentIntentId){
+            $paymentIntent=$this->stripeService->getPaymentIntent($paymentIntentId);
+
+            
+            if(!$this->stripeService->isPaymentSucceeded($paymentIntent)){
+                $order->update(['payment_status' => 'failed']);
+                throw new \Exception(__('Payment failed. Please try again.'));
+            }
+
+            if($order->payment_reference !== $paymentIntentId){
+                throw new \Exception(__('Invalid payment reference.'));
+            }
+
+            $order->update([
+                'status'=>'processing',
+                'payment_status'=>'paid',
+            ]);
+
+            $this->decrementAndClear($order);
+
+        });
+    }
+}

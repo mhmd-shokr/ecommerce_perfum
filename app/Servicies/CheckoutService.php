@@ -91,17 +91,20 @@ class CheckoutService{
                 'discount'       => 0,
                 'total'          => $total,
                 'status'         => 'pending',
+                'payment_method' => $data['payment_method'],
                 'payment_status' => 'pending',
+                'payment_reference' => null,
+                
             ]);
 
             // create items
             $this->checkoutRepo->createOrderItems($order, $cartItems);
 
             // decrease stock
-            $this->checkoutRepo->decrementStock($cartItems);
+            // $this->checkoutRepo->decrementStock($cartItems);
 
             // clear cart
-            $this->checkoutRepo->clearCart($userId);
+            // $this->checkoutRepo->clearCart($userId);
 
             return $order;
         });

@@ -484,11 +484,11 @@
                                             <input type="radio" name="address_id" value="{{ $address->id }}"
                                                 data-governorate="{{ $address->governorate }}" {{ $loop->first ? 'checked' : '' }}
                                                 onchange="
-                                                                        document.querySelectorAll('.saved-address-card')
-                                                                            .forEach(c => c.classList.remove('selected'));
-                                                                        this.closest('.saved-address-card').classList.add('selected');
-                                                                        updateShipping(this.dataset.governorate)
-                                                                    ">
+                                                                                    document.querySelectorAll('.saved-address-card')
+                                                                                        .forEach(c => c.classList.remove('selected'));
+                                                                                    this.closest('.saved-address-card').classList.add('selected');
+                                                                                    updateShipping(this.dataset.governorate)
+                                                                                ">
                                             <div class="saved-address-info">
                                                 <div class="saved-address-name">
                                                     {{ $address->full_name }} — {{ $address->phone }}
@@ -597,16 +597,35 @@
                         </svg>
                         {{ __('Payment Method') }}
                     </div>
+
                     <div class="c-section-body">
-                        <label class="saved-address-card selected">
-                            <input type="radio" name="payment_method" value="cash" checked>
-                            <div class="saved-address-info">
+
+                        {{-- Cash --}}
+                        <label class="saved-address-card ">
+                            <input type="radio"
+                            name="payment_method"
+                            value="cash"
+                            {{ old('payment_method', 'cash') == 'cash' ? 'checked' : '' }}>                            <div class="saved-address-info">
                                 <div class="saved-address-name">💵 {{ __('Cash on Delivery') }}</div>
                                 <div class="saved-address-detail">
                                     {{ __('Pay when your order arrives') }}
                                 </div>
                             </div>
                         </label>
+
+                        {{-- Stripe --}}
+                        <label class="saved-address-card">
+                            <input type="radio"
+                            name="payment_method"
+                            value="stripe"
+                            {{ old('payment_method') == 'stripe' ? 'checked' : '' }}>                            <div class="saved-address-info">
+                                <div class="saved-address-name">💳 {{ __('Credit / Debit Card') }}</div>
+                                <div class="saved-address-detail">
+                                    {{ __('Pay securely with Stripe') }}
+                                </div>
+                            </div>
+                        </label>
+
                     </div>
                 </div>
 
@@ -706,7 +725,6 @@
             }
         }
 
-        // ── AJAX: جيب تكلفة الشحن لما يختار محافظة ──
         function updateShipping(governorate) {
             if (!governorate) return;
 
