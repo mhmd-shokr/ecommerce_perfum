@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Servicies\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Webhook;
 
@@ -28,14 +29,17 @@ class WebhookController extends Controller
         $order->update(['payment_status' => 'failed']);
     }
 
-    public function handel(Request $request){
+    public function handle(Request $request){
         $payload=$request->getContent();
         $sigHeader=$request->header('Stripe-Signature');
         $secret=config('services.stripe.webhook_secret');
 
         try{
             $event=Webhook::constructEvent($payload,$sigHeader,$secret);
-        }catch(SignatureVerificationException $e){
+        }catch (\UnexpectedValueException $e) {
+            return response()->json(['error' => 'Invalid payload'], 400);
+        }
+        catch(SignatureVerificationException $e){
             return response()->json(['error'=>'Invalid signature'],404);
         }
 
@@ -46,6 +50,7 @@ class WebhookController extends Controller
                 => $this->onFailed($event->data->object),
             default => null,
         };
+        Log::info('Stripe webhook hit', $event->toArray());
         return response()->json(['status' => 'ok']);
     }
 }
