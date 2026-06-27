@@ -11,6 +11,7 @@ use App\Http\Controllers\Customer\WishlistController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -67,6 +68,8 @@ Route::middleware('auth')->group(function () {
 
     });
 });
+ //webhook
+ Route::post('webhook/stripe',[WebhookController::class,'handle'])->name('webhook.stripe');
 
 Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group(function(){
     Route::get("/dashboard",function(){

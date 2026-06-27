@@ -2,8 +2,11 @@
 namespace App\Servicies;
 
 use App\Models\Order;
+
 use App\Repositries\CheckoutRepository;
 use Illuminate\Support\Facades\DB;
+use App\Servicies\StockService;
+use App\Servicies\StripeService;
 
 class PaymentService{
     public function __construct(
@@ -13,6 +16,7 @@ class PaymentService{
     ){}
 
     public function decrementAndClear(Order $order){
+        $order->loadMissing('items.product');
         foreach($order->items as $item){
             if($item->product){
                 $this->stock_service->decrease(
@@ -55,13 +59,14 @@ class PaymentService{
             $paymentIntent=$this->stripeService->getPaymentIntent($paymentIntentId);
 
             
+            
+            if($order->payment_reference !== $paymentIntentId){
+                throw new \Exception(__('Invalid payment reference.'));
+            }
+
             if(!$this->stripeService->isPaymentSucceeded($paymentIntent)){
                 $order->update(['payment_status' => 'failed']);
                 throw new \Exception(__('Payment failed. Please try again.'));
-            }
-
-            if($order->payment_reference !== $paymentIntentId){
-                throw new \Exception(__('Invalid payment reference.'));
             }
 
             $order->update([
