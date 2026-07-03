@@ -19,7 +19,7 @@ class WebhookController extends Controller
         if(!$order)return;
         //if completed by Browser
         if ($order->payment_status === 'paid') return;
-        $this->paymentService->confirmStripe($order,$paymentIntent->id);
+        $this->paymentService->confirmStripe($order,$paymentIntent);
     }
 
     public function onFailed(object $paymentIntent){

@@ -4,9 +4,10 @@ namespace App\Servicies;
 use App\Models\Order;
 
 use App\Repositries\CheckoutRepository;
-use Illuminate\Support\Facades\DB;
 use App\Servicies\StockService;
 use App\Servicies\StripeService;
+use Illuminate\Support\Facades\DB;
+use Stripe\PaymentIntent;
 
 class PaymentService{
     public function __construct(
@@ -54,13 +55,11 @@ class PaymentService{
         return $paymentIntent->client_secret;
     }
 
-    public function confirmStripe(Order $order , string $paymentIntentId){
-        DB::transaction(function() use($order,$paymentIntentId){
-            $paymentIntent=$this->stripeService->getPaymentIntent($paymentIntentId);
+    public function confirmStripe(Order $order , PaymentIntent  $paymentIntent){
+        DB::transaction(function() use($order,$paymentIntent){
+            // $paymentIntent=$this->stripeService->getPaymentIntent($paymentIntentId);
 
-            
-            
-            if($order->payment_reference !== $paymentIntentId){
+            if($order->payment_reference !== $paymentIntent->id){
                 throw new \Exception(__('Invalid payment reference.'));
             }
 

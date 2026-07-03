@@ -221,6 +221,7 @@
             <a href="#"
                 class="c-nav-link {{ request()->is('categories*') ? 'active' : '' }}">{{ __('Collections') }}</a>
             <a href="#" class="c-nav-link {{ request()->is('about*') ? 'active' : '' }}">{{ __('About') }}</a>
+            <a href="{{ route("my.orders.index") }}" class="c-nav-link {{ request()->is('orders*') ? 'active' : '' }}">{{ __('Orders') }}</a>
         </div>
 
         {{-- Right side --}}
