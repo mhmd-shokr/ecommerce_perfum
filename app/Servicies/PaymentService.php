@@ -58,9 +58,25 @@ class PaymentService{
     public function confirmStripe(Order $order , PaymentIntent  $paymentIntent){
         DB::transaction(function() use($order,$paymentIntent){
             // $paymentIntent=$this->stripeService->getPaymentIntent($paymentIntentId);
-
+            $order=Order::whereKey($order->id)->lockForUpdate()
+            ->firstOrFail();            
+            if($order->payment_status=='paid'){
+                return;
+            }
             if($order->payment_reference !== $paymentIntent->id){
                 throw new \Exception(__('Invalid payment reference.'));
+            }
+
+            if ($paymentIntent->amount !== (int) ($order->total * 100)) {
+                throw new \Exception(__('Payment amount mismatch.'));
+            }
+
+            if ($paymentIntent->currency !== 'usd') {
+                throw new \Exception(__('Invalid payment currency.'));
+            }
+
+            if (($paymentIntent->metadata->order_id ?? null) != $order->id) {
+                throw new \Exception(__('Invalid payment metadata.'));
             }
 
             if(!$this->stripeService->isPaymentSucceeded($paymentIntent)){

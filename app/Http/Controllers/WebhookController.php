@@ -7,6 +7,7 @@ use App\Servicies\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\PaymentIntent;
 use Stripe\Webhook;
 
 class WebhookController extends Controller
@@ -14,7 +15,7 @@ class WebhookController extends Controller
     public function __construct(protected PaymentService $paymentService){}
 
 
-    public function onSucceeded(object $paymentIntent){
+    public function onSucceeded(PaymentIntent  $paymentIntent){
         $order=Order::where('payment_reference',$paymentIntent->id)->first();
         if(!$order)return;
         //if completed by Browser
@@ -22,7 +23,7 @@ class WebhookController extends Controller
         $this->paymentService->confirmStripe($order,$paymentIntent);
     }
 
-    public function onFailed(object $paymentIntent){
+    public function onFailed(PaymentIntent  $paymentIntent){
         $order=Order::where('payment_reference',$paymentIntent->id)->first();
         if(!$order)return;
         //if completed by Browser
