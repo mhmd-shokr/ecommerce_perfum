@@ -1,13 +1,14 @@
 <?php
 namespace App\Servicies;
 
+use App\Jobs\NotifyAdminNewOrder;
+use App\Jobs\SendOrderConfirmationEmail;
 use App\Models\Order;
 
 use App\Repositries\CheckoutRepository;
+use Illuminate\Support\Facades\DB;
 use App\Servicies\StockService;
 use App\Servicies\StripeService;
-use Illuminate\Support\Facades\DB;
-use Stripe\PaymentIntent;
 
 class PaymentService{
     public function __construct(
@@ -33,12 +34,20 @@ class PaymentService{
     //when cash on delivery
     public function handelCash(Order $order){
         DB::transaction(function() use($order){
+            $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+            if(in_array($locked->status, ['processing', 'completed'])){
+                return; 
+            }
             $order->update([
                 'status'=>'processing',
                 'payment_status'=>'pending',
             ]);
             $this->decrementAndClear($order);
         });
+        //mail to customer
+        SendOrderConfirmationEmail::dispatch($order->id);
+        //mail to admin
+        NotifyAdminNewOrder::dispatch($order)->delay(now()->addSeconds(10));
     }
 
     public function initiateStripe(Order $order){
@@ -55,36 +64,31 @@ class PaymentService{
         return $paymentIntent->client_secret;
     }
 
-    public function confirmStripe(Order $order , PaymentIntent  $paymentIntent){
-        DB::transaction(function() use($order,$paymentIntent){
-            // $paymentIntent=$this->stripeService->getPaymentIntent($paymentIntentId);
-            $order=Order::whereKey($order->id)->lockForUpdate()
-            ->firstOrFail();            
-            if($order->payment_status=='paid'){
+    public function confirmStripe(Order $order , string $paymentIntentId){
+        $paymentIntent=$this->stripeService->getPaymentIntent($paymentIntentId);
+        $succeeded = $this->stripeService->isPaymentSucceeded($paymentIntent);
+        $failureException = null;
+        DB::transaction(function() use($order,$paymentIntentId,$succeeded,&$failureException){
+            $locked = Order::whereKey($order->id)
+            ->lockForUpdate()
+            ->firstOrFail();
+            if ($locked->payment_status === 'paid') {
                 return;
             }
-            if($order->payment_reference !== $paymentIntent->id){
+
+            
+            
+            if($locked->payment_reference !== $paymentIntentId){
                 throw new \Exception(__('Invalid payment reference.'));
             }
 
-            if ($paymentIntent->amount !== (int) ($order->total * 100)) {
-                throw new \Exception(__('Payment amount mismatch.'));
+            
+            if(!$succeeded){
+                $locked->update(['payment_status' => 'failed']);
+                $failureException = new \Exception(__('Payment failed. Please try again.'));
+                return;
             }
-
-            if ($paymentIntent->currency !== 'usd') {
-                throw new \Exception(__('Invalid payment currency.'));
-            }
-
-            if (($paymentIntent->metadata->order_id ?? null) != $order->id) {
-                throw new \Exception(__('Invalid payment metadata.'));
-            }
-
-            if(!$this->stripeService->isPaymentSucceeded($paymentIntent)){
-                $order->update(['payment_status' => 'failed']);
-                throw new \Exception(__('Payment failed. Please try again.'));
-            }
-
-            $order->update([
+            $locked->update([
                 'status'=>'processing',
                 'payment_status'=>'paid',
             ]);
@@ -92,5 +96,13 @@ class PaymentService{
             $this->decrementAndClear($order);
 
         });
+         //mail to customer
+            SendOrderConfirmationEmail::dispatch($order->id);
+         //mail to admin
+            NotifyAdminNewOrder::dispatch($order)->delay(now()->addSeconds(10));
+        
+        if($failureException){
+            throw $failureException;
+        }
     }
 }

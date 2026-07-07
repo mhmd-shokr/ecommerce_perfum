@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendOtpVerificationEmail;
+use App\Jobs\SendWelcomeEmail;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -41,15 +43,18 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $otp=$user->generateOtp();
+        SendOtpVerificationEmail::dispatch($user,$otp);
+        SendWelcomeEmail::dispatch($user)->delay(now()->addSeconds(10));
         $user->assignRole('customer');
 
-        event(new Registered($user));
+        // event(new Registered($user));
 
         Auth::login($user);
 
         if($user->hasRole('admin')){
             return redirect()->route('admin.dashboard');
         } 
-        return redirect()->route('home');
+        return redirect()->route('email.verify.show');
     }
 }

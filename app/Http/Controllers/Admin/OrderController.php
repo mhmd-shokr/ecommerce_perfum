@@ -13,7 +13,7 @@ class OrderController extends Controller
     public function index(){
         $orders=$this->orderService->getAllOrders();
         $ordersCount=$this->orderService->getOrdersCount();
-        $pendingOrdersCount=$this->orderService->orderPending();
+        $pendingOrdersCount=$this->orderService->pendingOrdersCount();
         return view('admin.orders.index',compact('orders','ordersCount','pendingOrdersCount'));
     }
 

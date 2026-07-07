@@ -70,10 +70,7 @@ class ProductRepository implements ProductInterface{
         ])->findOrFail($id);
     }
     
-    //orders
-    // public function getTopSelling(int $count = 5)
-    // {
-    // }
+   
 
     public function getRelatedProducts(Product $product){
         return Product::where('category_id',$product->category_id)->whereKeyNot($product->id)
@@ -186,5 +183,14 @@ class ProductRepository implements ProductInterface{
         }
     
         return $query->paginate(12)->withQueryString();
+    }
+
+    public function lowStockProducts()
+    {
+        return Product::whereColumn(
+            'stock_quantity',
+            '<=',
+            'low_stock_threshold'
+        )->count();
     }
 }

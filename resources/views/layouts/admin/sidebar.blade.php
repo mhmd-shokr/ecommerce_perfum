@@ -105,6 +105,20 @@
             <span class="nav-badge">{{ $pendingOrdersCount ?? 0 }}</span>
         </a>
 
+        <a class="nav-link {{ request()->is('admin/coupons*') ? 'active' : '' }}" href="{{ route('admin.coupons.index') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 12l-8 8-8-8V4h8l8 8z"/>
+                <circle cx="9" cy="9" r="1"/>
+            </svg>            {{ __('Coupons') }}
+        </a>
+
+        <a class="nav-link {{ request()->is('admin/offers*') ? 'active' : '' }}" href="{{ route('admin.offers.index') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 12l-8 8-8-8V4h8l8 8z"/>
+                <circle cx="9" cy="9" r="1"/>
+            </svg>            {{ __('Offers') }}
+        </a>
+
         <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}" href="#">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             {{ __('Customers') }}

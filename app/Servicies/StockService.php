@@ -18,6 +18,13 @@ class StockService{
 
     public function move(Product $product,string $type,int $quantity,?string $note){
         return DB::transaction(function()use($product,$type,$quantity,$note){
+            $locked = Product::where('id', $product->id)->lockForUpdate()->first();
+            if(!$locked){
+                throw new \Exception(__('Product not found'));
+            }
+            if($type == 'decrease' && $locked->stock_quantity < $quantity){
+                throw new \Exception(__(':product does not have enough stock', ['product' => $locked->name]));
+            }
             //Create movement
             Stock_movement::create
             ([
@@ -31,12 +38,12 @@ class StockService{
             if($type=='increase'){
                 $product->stock_quantity+=$quantity;
             }else{
-                $product->stock_quantity=max(0,$product->stock_quantity-$quantity);
+                $locked->stock_quantity -= $quantity;
             }
             //Update status
-            $product->is_out_of_stock=$product->stock_quantity<=0;
-            $product->save(); 
-            return $product;
+            $locked->is_out_of_stock = $locked->stock_quantity <= 0;
+            $locked->save();
+            return $locked;
         });
     }
 

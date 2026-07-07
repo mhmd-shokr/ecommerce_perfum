@@ -3,6 +3,7 @@ namespace App\Repositries;
 
 use App\Interfaces\OrderInterface;
 use App\Models\Order;
+use App\Models\Product;
 use Override;
 
 class OrderRepository implements OrderInterface{
@@ -33,8 +34,32 @@ class OrderRepository implements OrderInterface{
         return Order::count();
     }
 
-    public function pendingOrders(){
+    public function pendingOrdersCount(){
         return Order::where('status','pending')->count();
     }
+
+public function pendingOrders()
+{
+    return Order::with('user')
+                ->where('status', 'pending')
+                ->latest()
+                ->take(5)
+                ->get();
+}
+
+    public function completesOrders()
+{
+    return Order::where('status', 'delivered')->count();
+}
+public function totalRevenue()
+{
+    return Order::where('payment_status', 'paid')
+                ->sum('total');
+}
+
+public function getTopSelling(int $count = 5){
+    return Product::withSum('orderItems','quantity')->orderByDesc('order_items_sum_quantity')->
+    take($count)->get();
+}
 
 }

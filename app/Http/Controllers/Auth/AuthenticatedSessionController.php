@@ -27,15 +27,16 @@ class AuthenticatedSessionController extends Controller
     {
         $wishlist = session()->get('wishlist', []);
         $cart = session()->get('cart', []);
-
         $request->authenticate();
 
         $request->session()->regenerate();
         $user=auth()->user();
+
         if($user->hasRole('admin')){
             session()->forget(['wishlist', 'cart']);
             return redirect()->route('admin.dashboard');
         } 
+
         foreach($wishlist as $productId){
             $user->Wishlists()->firstOrCreate([
                 'product_id'=>$productId,
@@ -45,7 +46,6 @@ class AuthenticatedSessionController extends Controller
         foreach($cart as $productId=>$item){
             $product=Product::find($productId);
             if (!$product) continue;
-
             $qty=max(1,(int)$item['quantity']);
             $cartItem=$user->carts()->where('product_id',$productId)
             ->first();

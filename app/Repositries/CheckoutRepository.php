@@ -43,6 +43,10 @@ class CheckoutRepository implements CheckoutInterface{
         });
     }
 
+    // public function applyCoupon(Request $request){
+
+    // }
+
 
     public function clearCart(int $userId)
     {

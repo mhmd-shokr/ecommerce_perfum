@@ -9,7 +9,9 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Customer\VerificationController;
 use Illuminate\Support\Facades\Route;
+
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -36,17 +38,20 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
 
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
 
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
+    Route::get('verify-email', [VerificationController::class, 'show'])
+    ->name('email.verify.show');
 
+Route::post('verify-email/send', [VerificationController::class, 'send'])
+    ->name('email.verify.send');
+
+Route::post('verify-email/verify', [VerificationController::class, 'verify'])
+    ->name('email.verify.otp');
+
+Route::post('verify-email/resend', [VerificationController::class, 'resend'])
+    ->name('email.verify.resend');
+    
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
 

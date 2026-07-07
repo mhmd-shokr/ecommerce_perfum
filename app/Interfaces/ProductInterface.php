@@ -15,7 +15,7 @@ Interface ProductInterface{
     public function delete(int $id);
 
     public function count ();
-    
+    public function lowStockProducts();
     public function getByCategory(int $categoryId);
 
     public function getActiveWithRelations();
@@ -32,4 +32,5 @@ Interface ProductInterface{
 
     public function getRelatedProducts(Product $product);
     public function filterProducts(array $filters);
+
 }

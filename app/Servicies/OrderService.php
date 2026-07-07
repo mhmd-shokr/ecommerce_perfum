@@ -33,7 +33,7 @@ class OrderService{
         return $this->orderRepository->getOrdersCount();
     }
 
-    public function orderPending(){
-        return $this->orderRepository->pendingOrders();
+    public function pendingOrdersCount(){
+        return $this->orderRepository->pendingOrdersCount();
     }
 }

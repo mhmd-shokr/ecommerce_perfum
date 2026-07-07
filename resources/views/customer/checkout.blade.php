@@ -1,4 +1,3 @@
-{{-- resources/views/customer/checkout.blade.php --}}
 @extends('layouts.customer.app')
 
 @section('title', __('Checkout'))
@@ -484,11 +483,11 @@
                                             <input type="radio" name="address_id" value="{{ $address->id }}"
                                                 data-governorate="{{ $address->governorate }}" {{ $loop->first ? 'checked' : '' }}
                                                 onchange="
-                                                                                    document.querySelectorAll('.saved-address-card')
-                                                                                        .forEach(c => c.classList.remove('selected'));
-                                                                                    this.closest('.saved-address-card').classList.add('selected');
-                                                                                    updateShipping(this.dataset.governorate)
-                                                                                ">
+                                                                                                document.querySelectorAll('.saved-address-card')
+                                                                                                    .forEach(c => c.classList.remove('selected'));
+                                                                                                this.closest('.saved-address-card').classList.add('selected');
+                                                                                                updateShipping(this.dataset.governorate)
+                                                                                            ">
                                             <div class="saved-address-info">
                                                 <div class="saved-address-name">
                                                     {{ $address->full_name }} — {{ $address->phone }}
@@ -602,10 +601,8 @@
 
                         {{-- Cash --}}
                         <label class="saved-address-card ">
-                            <input type="radio"
-                            name="payment_method"
-                            value="cash"
-                            {{ old('payment_method', 'cash') == 'cash' ? 'checked' : '' }}>                            <div class="saved-address-info">
+                            <input type="radio" name="payment_method" value="cash" {{ old('payment_method', 'cash') == 'cash' ? 'checked' : '' }}>
+                            <div class="saved-address-info">
                                 <div class="saved-address-name">💵 {{ __('Cash on Delivery') }}</div>
                                 <div class="saved-address-detail">
                                     {{ __('Pay when your order arrives') }}
@@ -615,10 +612,8 @@
 
                         {{-- Stripe --}}
                         <label class="saved-address-card">
-                            <input type="radio"
-                            name="payment_method"
-                            value="stripe"
-                            {{ old('payment_method') == 'stripe' ? 'checked' : '' }}>                            <div class="saved-address-info">
+                            <input type="radio" name="payment_method" value="stripe" {{ old('payment_method') == 'stripe' ? 'checked' : '' }}>
+                            <div class="saved-address-info">
                                 <div class="saved-address-name">💳 {{ __('Credit / Debit Card') }}</div>
                                 <div class="saved-address-detail">
                                     {{ __('Pay securely with Stripe') }}
@@ -671,10 +666,31 @@
 
                     <div class="summary-row">
                         <span class="label">{{ __('Shipping') }}</span>
-                        {{-- بيتحدث بالـ AJAX لما يختار محافظة --}}
                         <span class="val" id="shipping-cost-display">
                             {{ __('Select governorate') }}
                         </span>
+                    </div>
+
+                    {{-- ✅ Coupon Field --}}
+                    <div style="margin: 12px 0;">
+                        <div style="display:flex;gap:8px;">
+                            <input type="text" name="coupon_code" id="coupon-input" class="form-control"
+                                placeholder="{{ __('Coupon code') }}" value="{{ old('coupon_code') }}" style="flex:1;">
+                            <button type="button" onclick="applyCoupon()"
+                                style="padding:10px 14px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--gold-dim);font-size:11px;font-family:Arial,sans-serif;letter-spacing:1px;cursor:pointer;white-space:nowrap;transition:all 0.15s;"
+                                onmouseover="this.style.borderColor='var(--gold-dim)';this.style.color='var(--gold)'"
+                                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gold-dim)'">
+                                {{ __('Apply') }}
+                            </button>
+                        </div>
+                        {{-- Coupon feedback --}}
+                        <div id="coupon-msg"
+                            style="font-size:11px;font-family:Arial,sans-serif;margin-top:6px;min-height:16px;"></div>
+                    </div>
+
+                    <div class="summary-row" id="discount-row" style="display:none;">
+                        <span class="label">{{ __('Discount') }}</span>
+                        <span class="val" id="discount-display" style="color:#7ab87a;"></span>
                     </div>
 
                     <div class="summary-row total-row">
@@ -705,55 +721,114 @@
 @endsection
 
 @push('scripts')
-    <script>
-        const subtotal = {{ $subtotal }};
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        // ── Tabs (Saved / New Address) ──
-        function showTab(tab) {
-            const isSaved = tab === 'saved';
-
-            document.getElementById('panel-saved')?.style.setProperty('display', isSaved ? 'block' : 'none');
-            document.getElementById('panel-new').style.display = isSaved ? 'none' : 'block';
-
-            document.getElementById('tab-saved')?.classList.toggle('active', isSaved);
-            document.getElementById('tab-new').classList.toggle('active', !isSaved);
-
-            if (!isSaved) {
-                document.querySelectorAll('input[name="address_id"]')
-                    .forEach(r => r.checked = false);
-            }
+<script>
+    const subtotal = {{ $subtotal }};
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+ 
+    // بنحتفظ بالقيم دي كمتغيرات عالمية عشان نقدر نعيد حساب الإجمالي
+    // في أي وقت (سواء اتغيرت المحافظة أو اتطبق كوبون) من غير ما نكرر المنطق.
+    let currentShippingCost = 0;
+    let appliedDiscount = 0;
+ 
+    // ── Tabs (Saved / New Address) ──
+    function showTab(tab) {
+        const isSaved = tab === 'saved';
+ 
+        document.getElementById('panel-saved')?.style.setProperty('display', isSaved ? 'block' : 'none');
+        document.getElementById('panel-new').style.display = isSaved ? 'none' : 'block';
+ 
+        document.getElementById('tab-saved')?.classList.toggle('active', isSaved);
+        document.getElementById('tab-new').classList.toggle('active', !isSaved);
+ 
+        if (!isSaved) {
+            document.querySelectorAll('input[name="address_id"]')
+                .forEach(r => r.checked = false);
         }
-
-        function updateShipping(governorate) {
-            if (!governorate) return;
-
-            fetch('{{ route("checkout.shipping.cost") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-                body: JSON.stringify({ governorate }),
+    }
+ 
+    // ── إعادة حساب الإجمالي المعروض (subtotal + shipping - discount) ──
+    function updateTotal() {
+        const total = Math.max(0, subtotal + currentShippingCost - appliedDiscount);
+        document.getElementById('total-display').textContent = `$${total.toFixed(2)}`;
+    }
+ 
+    function updateShipping(governorate) {
+        if (!governorate) return;
+ 
+        fetch('{{ route("checkout.shipping.cost") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({ governorate }),
+        })
+            .then(r => r.json())
+            .then(data => {
+                currentShippingCost = parseFloat(data.cost) || 0;
+ 
+                document.getElementById('shipping-cost-display').textContent =
+                    currentShippingCost > 0 ? `$${currentShippingCost.toFixed(2)}` : '{{ __("Free") }}';
+ 
+                updateTotal();
+            });
+    }
+ 
+    // ── تطبيق الكوبون (Preview بس - الفحص النهائي بيحصل وقت الـ submit فعليًا) ──
+    function applyCoupon() {
+        const input = document.getElementById('coupon-input');
+        const msgEl = document.getElementById('coupon-msg');
+        const code = input.value.trim();
+ 
+        if (!code) {
+            msgEl.style.color = 'var(--danger)';
+            msgEl.textContent = '{{ __("Please enter a coupon code") }}';
+            return;
+        }
+ 
+        msgEl.style.color = 'var(--text-muted)';
+        msgEl.textContent = '{{ __("Checking coupon...") }}';
+ 
+        fetch('{{ route("checkout.coupon.apply") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({ coupon_code: code }),
+        })
+            .then(async (r) => ({ ok: r.ok, body: await r.json() }))
+            .then(({ ok, body }) => {
+                if (ok && body.valid) {
+                    appliedDiscount = parseFloat(body.discount) || 0;
+ 
+                    document.getElementById('discount-row').style.display = 'flex';
+                    document.getElementById('discount-display').textContent =
+                        `-$${appliedDiscount.toFixed(2)}`;
+ 
+                    msgEl.style.color = '#7ab87a';
+                    msgEl.textContent = body.message;
+                } else {
+                    // كوبون غلط أو منتهي: نصفّر الخصم ونخفي صف الخصم
+                    appliedDiscount = 0;
+                    document.getElementById('discount-row').style.display = 'none';
+ 
+                    msgEl.style.color = 'var(--danger)';
+                    msgEl.textContent = body.message || '{{ __("Invalid coupon") }}';
+                }
+                updateTotal();
             })
-                .then(r => r.json())
-                .then(data => {
-                    const cost = parseFloat(data.cost);
-                    const total = subtotal + cost;
-
-                    document.getElementById('shipping-cost-display').textContent =
-                        cost > 0 ? `$${cost.toFixed(2)}` : '{{ __("Free") }}';
-
-                    document.getElementById('total-display').textContent =
-                        `$${total.toFixed(2)}`;
-                });
+            .catch(() => {
+                msgEl.style.color = 'var(--danger)';
+                msgEl.textContent = '{{ __("Something went wrong, please try again") }}';
+            });
+    }
+ 
+    document.addEventListener('DOMContentLoaded', function () {
+        const checked = document.querySelector('input[name="address_id"]:checked');
+        if (checked) {
+            updateShipping(checked.dataset.governorate);
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const checked = document.querySelector('input[name="address_id"]:checked');
-            if (checked) {
-                updateShipping(checked.dataset.governorate);
-            }
-        });
-    </script>
+    });
+</script>
 @endpush
