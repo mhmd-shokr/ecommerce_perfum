@@ -1,6 +1,9 @@
 <?php
 return[
-    "Welcome back"=>'Welcome back',
+    'login'=>'login',
+    'Register'=>'Register',
+    'Logout'=>'Logout',
+    'Welcome back'=>'Welcome back',
     'Sign in to your account to continue'=>'Sign in to your account to continue',
     'Email Address'=>'Email Address',
     'Password'=>'Password',
@@ -11,5 +14,19 @@ return[
     'Create one'=>'Create one',
     'categories'=>'categories',
     'brands'=>'brands',
-    
+    'Shop Now'=>'Shop Now',
+    'Explore Collections'=>'Explore Collections',
+    'Luxury Fragrances'=>'Luxury Fragrances',
+    'a story'=>'a story',
+    'Every scent tells'=>'Every scent tells',
+    'What will yours say?'=>'What will yours say?',
+    'New Collection 2025'=>'New Collection 2025',
+    'The Art of'=>'The Art of',
+    'Luxury'=>'Luxury',
+    'Discover our curated collection of rare and exquisite perfumes, crafted by the finest perfumers from around the world'=>'Discover our curated collection of rare and exquisite perfumes, crafted by the finest perfumers from around the world',
+    'Fragrances'=>'Fragrances',
+    'Fragrance'=>'Fragrance',
+    'Handpicked For You' => 'Handpicked For You',
+'Featured Fragrances' => 'Featured Fragrances',
+'Each bottle tells a story. Discover the scents that define a moment.' => 'Each bottle tells a story. Discover the scents that define a moment.',
 ];

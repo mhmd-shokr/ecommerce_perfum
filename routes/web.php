@@ -104,10 +104,10 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group
 });
 
 //localization
-Route::get("/lang/{locale}",function($locale){
+    Route::get("/lang/{locale}",function($locale){
 
         session(['locale'=>$locale]);
         return back();
-});
+    })->name('locale.switch');
 require __DIR__.'/auth.php';
 

@@ -506,25 +506,43 @@
     <section class="hero">
         <div class="hero-inner">
             <div>
-                <div class="hero-eyebrow">{{ __('New Collection 2025') }}</div>
-                <h1 class="hero-title">{{ __('The Art of') }}<br><span>{{ __('Luxury') }}</span><br>{{ __('Fragrance') }}
+                <div class="hero-eyebrow">{{ __('message.New Collection 2025') }}</div>
+                <h1 class="hero-title">{{ __('message.The Art of') }}<br><span>{{ __('message.Luxury') }}</span><br>{{ __('message.Fragrance') }}
                 </h1>
                 <div class="hero-gold-rule"></div>
                 <p class="hero-desc">
-                    {{ __('Discover our curated collection of rare and exquisite perfumes, crafted by the finest perfumers from around the world.') }}
+                    {{ __('message.Discover our curated collection of rare and exquisite perfumes, crafted by the finest perfumers from around the world') }}
                 </p>
                 <div class="hero-actions">
-                    <a href="{{ route('shop.products') }}" class="btn-gold">{{ __('Shop Now') }}</a>
-                    <a href="#" class="btn-outline">{{ __('Explore Collections') }}</a>
+                    <a href="{{ route('shop.products') }}" class="btn-gold">{{ __('message.Shop Now') }}</a>
+                    <a href="{{ route('shop.products') }}" class="btn-outline">{{ __('message.Explore Collections') }}</a>
                 </div>
             </div>
+            @php
+            $bestSeller = $products->where('is_bestseller',1)->first();
+            @endphp
             <div class="hero-visual">
                 <div class="hero-bottle-wrap">
                     <div class="hero-bottle-glow"></div>
-                    <div class="hero-bottle-icon">🧴</div>
+            
+                    <div class="hero-bottle-icon">
+                        @if($bestSeller)
+                            <img src="{{ asset('storage/'.$bestSeller->images) }}" 
+                                 alt="{{ $bestSeller->name }}"
+                                 style="width:120px;height:120px;object-fit:contain;">
+                        @else
+                            🧴
+                        @endif
+                    </div>
+            
                     <div class="hero-badge">
-                        <div class="hero-badge-num">200+</div>
-                        <div class="hero-badge-label">{{ __('Fragrances') }}</div>
+                        <div class="hero-badge-num">
+                            {{ \App\Models\Product::count() }}+
+                        </div>
+            
+                        <div class="hero-badge-label">
+                            {{ __('message.Fragrances') }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -535,10 +553,10 @@
     <section class="section">
         <div class="section-inner">
             <div class="section-header">
-                <div class="section-eyebrow">{{ __('Handpicked For You') }}</div>
-                <h2 class="section-title">{{ __('Featured Fragrances') }}</h2>
+                <div class="section-eyebrow">{{ __('message.Handpicked For You') }}</div>
+                <h2 class="section-title">{{ __('message.Featured Fragrances') }}</h2>
                 <div class="section-rule"></div>
-                <p class="section-desc">{{ __('Each bottle tells a story. Discover the scents that define a moment.') }}</p>
+                <p class="section-desc">{{ __('message.Each bottle tells a story. Discover the scents that define a moment.') }}</p>
             </div>
             <div class="products-grid">
                 @foreach ($products as $product )

@@ -1,6 +1,33 @@
 <?php
-return[
-    'dashboard'=>'لوحة التحكم',
-    "welcome"=>'مرحبا',
-    'success login'=>'سجلت بنجاح'
-];
+
+return array (
+  'login' => 'تسجيل الدخول',
+  'Register' => 'تسجيل',
+  'Logout' => 'تسجيل الخروج',
+  'Welcome back' => 'مرحباً بعودتك',
+  'Sign in to your account to continue' => 'سجل الدخول إلى حسابك للمتابعة',
+  'Email Address' => 'عنوان البريد الإلكتروني',
+  'Password' => 'كلمة المرور',
+  'Remember me' => 'تذكرني',
+  'Forgot password?' => 'هل نسيت كلمة المرور؟',
+  'SIGN IN' => 'تسجيل الدخول',
+  'Do not have an account?' => 'ليس لديك حساب؟',
+  'Create one' => 'أنشئ واحداً',
+  'categories' => 'الفئات',
+  'brands' => 'الماركات',
+  'Shop Now' => 'تسوق الآن',
+  'Explore Collections' => 'استكشف المجموعات',
+  'Luxury Fragrances' => 'عطور فاخرة',
+  'a story' => 'قصة',
+  'Every scent tells' => 'كل رائحة تروي',
+  'What will yours say?' => 'ماذا ستقول رائحتك؟',
+  'New Collection 2025' => 'مجموعة جديدة 2025',
+  'The Art of' => 'فن الـ',
+  'Luxury' => 'الرفاهية',
+  'Discover our curated collection of rare and exquisite perfumes, crafted by the finest perfumers from around the world' => 'اكتشف مجموعتنا المنسقة من العطور النادرة والرائعة، المصنوعة على يد أمهر صانعي العطور من جميع أنحاء العالم',
+  'Fragrances' => 'عطور',
+  'Fragrance' => 'عطر',
+  'Handpicked For You' => 'مختارات خاصة لك',
+'Featured Fragrances' => 'عطور مميزة',
+'Each bottle tells a story. Discover the scents that define a moment.' => 'كل زجاجة تحكي قصة. اكتشف الروائح التي تصنع لحظة مميزة.',
+);

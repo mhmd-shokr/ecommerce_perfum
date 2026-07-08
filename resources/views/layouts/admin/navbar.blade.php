@@ -49,8 +49,8 @@
 
         {{-- Language switcher --}}
         <div class="lang-switch">
-            <a href="/lang/ar" class="lang-btn {{ app()->getLocale() == 'en' ? 'active' : '' }}">EN</a>
-            <a href="/lang/en" class="lang-btn {{ app()->getLocale() == 'ar' ? 'active' : '' }}">AR</a>
+            <a href="{{ route("locale.switch",'en') }}" class="lang-btn {{ app()->getLocale() == 'en' ? 'active' : '' }}">EN</a>
+            <a href="{{ route('locale.switch','ar') }}" class="lang-btn {{ app()->getLocale() == 'ar' ? 'active' : '' }}">AR</a>
         </div>
 
         {{-- Notifications --}}
