@@ -7,8 +7,10 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\ReviewController;
 use App\Http\Controllers\Customer\StoreController;
@@ -19,6 +21,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
+
+
 
 Route::get('/login', function () {
     return view('auth.login');
@@ -40,7 +44,7 @@ Route::patch('/cart/update/{productId}', [CartController::class, 'update'])->nam
 Route::delete('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::delete('/cart/clear',          [CartController::class, 'clear'])->name('cart.clear');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth','active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -78,6 +82,10 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group
     Route::resource('brands',BrandController::class);
     //products
     Route::resource('products',ProductController::class);
+    //shipping-zones
+    Route::resource('shipping-zones', ShippingZoneController::class)
+    ->except(['show'])
+    ->names('shipping-zones');
     //order
     Route::get('orders',[AdminOrderController::class,'index'])->name('orders.index');
     Route::get('order/{order}',[AdminOrderController::class,'show'])->name('order.show');
@@ -87,7 +95,12 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group
     //offers
     Route::resource('offers',OfferController::class)->except('edit','update');
     Route::post("offers/{offer}/send",[OfferController::class,'send'])->name('offers.send');
-
+    //customers
+    Route::get('customers/', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+    Route::put('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::patch('customers/{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
+    Route::put('customers/{customer}/permissions', [CustomerController::class, 'updatePermissions'])->name('customers.permissions.update');
 });
 
 //localization

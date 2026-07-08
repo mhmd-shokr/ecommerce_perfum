@@ -7,7 +7,6 @@
 @section('content')
 
 <style>
-    /* نفس التصميم بدون أي تعديل */
     .dash-header { margin-bottom: 28px; }
     .dash-title { font-size: 22px; color: var(--text-primary); font-weight: 400; letter-spacing: 0.5px; margin-bottom: 4px; }
     .dash-sub { font-size: 12px; color: var(--text-secondary); font-family: Arial, sans-serif; }
@@ -21,11 +20,13 @@
         overflow: hidden; cursor: pointer; transition: border-color 0.2s;
     }
 
+    .stat-card:hover { border-color: var(--gold); }
+
     .stat-icon {
         width: 34px; height: 34px; background: rgba(200,169,106,0.08);
         border: 1px solid var(--border); border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
-        margin-bottom: 14px; color: var(--gold);
+        margin-bottom: 14px; color: var(--gold); font-size: 15px;
     }
 
     .stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
@@ -50,9 +51,19 @@
 
     table { width: 100%; border-collapse: collapse; }
 
+    thead tr { border-bottom: 1px solid var(--border); }
+
+    thead th {
+        text-align: left; padding: 12px 20px; font-size: 10px;
+        letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    tbody td { padding: 12px 20px; font-size: 12px; color: var(--text-secondary); }
+
     tbody tr { border-bottom: 1px solid rgba(200,169,106,0.06); cursor: pointer; }
 
-    .product-cell { display: flex; gap: 12px; }
+    .product-cell { display: flex; gap: 12px; align-items: center; color: var(--text-primary); }
 
     .status-pill { padding: 3px 10px; border-radius: 20px; font-size: 10px; }
 
@@ -62,9 +73,24 @@
 
     .status-active { background: rgba(122,184,122,0.12); color: #7ab87a; }
 
-    .order-row { display: flex; padding: 11px 20px; cursor: pointer; }
+    .status-pending { background: rgba(200,169,106,0.12); color: var(--gold); }
+
+    .order-row { display: flex; align-items: center; padding: 11px 20px; cursor: pointer; }
+
+    .order-row + .order-row { border-top: 1px solid rgba(200,169,106,0.06); }
 
     .empty-state { padding: 28px; text-align: center; color: var(--text-muted); }
+
+    .alert-banner {
+        display: flex; align-items: center; gap: 10px;
+        padding: 14px 20px; margin-bottom: 20px;
+        background: rgba(200,169,106,0.08);
+        border: 1px solid rgba(200,169,106,0.25);
+        border-left: 3px solid var(--gold);
+        border-radius: 8px;
+        font-size: 12px; color: var(--text-primary);
+        font-family: Arial, sans-serif;
+    }
 </style>
 
 @php
@@ -89,7 +115,7 @@
 
 {{-- LOW STOCK ALERT --}}
 @if($lowStockCount > 0)
-    <div class="empty-state">
+    <div class="alert-banner">
         ⚠ {{ $lowStockCount }} {{ __('products are running low on stock') }}
     </div>
 @endif
@@ -98,6 +124,7 @@
 <div class="stats-grid">
 
     <div class="stat-card">
+        <div class="stat-icon">$</div>
         <div class="stat-label">{{ __('Total Revenue') }}</div>
         <div class="stat-value">${{ number_format($data['totalRevenue'] ?? 0, 0) }}</div>
         <div class="stat-delta">
@@ -106,6 +133,7 @@
     </div>
 
     <div class="stat-card">
+        <div class="stat-icon">▤</div>
         <div class="stat-label">{{ __('Total Orders') }}</div>
         <div class="stat-value">{{ number_format($data['ordersCount'] ?? 0) }}</div>
         <div class="stat-delta">
@@ -115,6 +143,7 @@
     </div>
 
     <div class="stat-card">
+        <div class="stat-icon">◔</div>
         <div class="stat-label">{{ __('Customers') }}</div>
         <div class="stat-value">{{ number_format($data['usersCount'] ?? 0) }}</div>
         <div class="stat-delta">
@@ -123,6 +152,7 @@
     </div>
 
     <div class="stat-card">
+        <div class="stat-icon">▣</div>
         <div class="stat-label">{{ __('Products') }}</div>
         <div class="stat-value">{{ number_format($data['productsCount'] ?? 0) }}</div>
         <div class="stat-delta">
@@ -144,6 +174,15 @@
         </div>
 
         <table>
+            <thead>
+                <tr>
+                    <th>{{ __('Product') }}</th>
+                    <th>{{ __('Price') }}</th>
+                    <th>{{ __('Sold') }}</th>
+                    <th>{{ __('Stock') }}</th>
+                    <th>{{ __('Status') }}</th>
+                </tr>
+            </thead>
             <tbody>
             @forelse($data['topSelling'] ?? [] as $product)
                 <tr onclick="window.location='{{ route('admin.products.edit', $product->id) }}'">
@@ -171,7 +210,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td class="empty-state">No data</td>
+                    <td colspan="5" class="empty-state">No data</td>
                 </tr>
             @endforelse
             </tbody>
@@ -190,12 +229,13 @@
             </div>
 
             @forelse($pendingCollection as $order)
-                <div class="order-row">
-                    <div>#{{ $order->id }}</div>
-                    <div style="flex:1">
+                <div class="order-row" onclick="window.location='{{ route('admin.order.show', $order->id) }}'">
+                    <div style="color:var(--text-muted);">#{{ $order->id }}</div>
+                    <div style="flex:1;padding:0 10px;color:var(--text-primary);">
                         {{ $order->user->name ?? 'Guest' }}
                     </div>
-                    <div>${{ $order->total ?? 0 }}</div>
+                    <div style="color:var(--text-secondary);margin-right:10px;">${{ number_format($order->total ?? 0, 2) }}</div>
+                    <span class="status-pill status-pending">{{ __('Pending') }}</span>
                 </div>
             @empty
                 <div class="empty-state">No pending orders</div>

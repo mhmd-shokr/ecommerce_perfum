@@ -242,6 +242,29 @@
             color: var(--text-muted);
         }
 
+        /* ✅ Fix: select text visibility */
+        select.form-control {
+            background-color: #1a1a1a;
+            color: #f0e6d0;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7248' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        select.form-control option {
+            background-color: #1a1a1a;
+            color: #f0e6d0;
+        }
+
+        select.form-control option:disabled {
+            color: #5a5040;
+        }
+
         .form-error {
             font-size: 11px;
             color: var(--danger);
@@ -483,11 +506,11 @@
                                             <input type="radio" name="address_id" value="{{ $address->id }}"
                                                 data-governorate="{{ $address->governorate }}" {{ $loop->first ? 'checked' : '' }}
                                                 onchange="
-                                                                                                document.querySelectorAll('.saved-address-card')
-                                                                                                    .forEach(c => c.classList.remove('selected'));
-                                                                                                this.closest('.saved-address-card').classList.add('selected');
-                                                                                                updateShipping(this.dataset.governorate)
-                                                                                            ">
+                                                    document.querySelectorAll('.saved-address-card')
+                                                        .forEach(c => c.classList.remove('selected'));
+                                                    this.closest('.saved-address-card').classList.add('selected');
+                                                    updateShipping(this.dataset.governorate)
+                                                ">
                                             <div class="saved-address-info">
                                                 <div class="saved-address-name">
                                                     {{ $address->full_name }} — {{ $address->phone }}
@@ -529,10 +552,14 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">{{ __('Governorate') }} *</label>
+                                    {{-- ✅ أضفنا class="form-control" على الـ select --}}
                                     <select name="governorate" class="form-control" onchange="updateShipping(this.value)">
-                                        <option value="">{{ __('Select Governorate') }}</option>
+                                        <option value="" disabled selected style="color:#5a5040;">
+                                            {{ __('Select Governorate') }}
+                                        </option>
                                         @foreach($shippingZones as $zone)
-                                            <option value="{{ $zone->governorate }}" {{ old('governorate') == $zone->governorate ? 'selected' : '' }}>
+                                            <option value="{{ $zone->governorate }}"
+                                                {{ old('governorate') == $zone->governorate ? 'selected' : '' }}>
                                                 {{ $zone->governorate }}
                                             </option>
                                         @endforeach
@@ -600,24 +627,22 @@
                     <div class="c-section-body">
 
                         {{-- Cash --}}
-                        <label class="saved-address-card ">
-                            <input type="radio" name="payment_method" value="cash" {{ old('payment_method', 'cash') == 'cash' ? 'checked' : '' }}>
+                        <label class="saved-address-card">
+                            <input type="radio" name="payment_method" value="cash"
+                                {{ old('payment_method', 'cash') == 'cash' ? 'checked' : '' }}>
                             <div class="saved-address-info">
                                 <div class="saved-address-name">💵 {{ __('Cash on Delivery') }}</div>
-                                <div class="saved-address-detail">
-                                    {{ __('Pay when your order arrives') }}
-                                </div>
+                                <div class="saved-address-detail">{{ __('Pay when your order arrives') }}</div>
                             </div>
                         </label>
 
                         {{-- Stripe --}}
-                        <label class="saved-address-card">
-                            <input type="radio" name="payment_method" value="stripe" {{ old('payment_method') == 'stripe' ? 'checked' : '' }}>
+                        <label class="saved-address-card" style="margin-top:10px;">
+                            <input type="radio" name="payment_method" value="stripe"
+                                {{ old('payment_method') == 'stripe' ? 'checked' : '' }}>
                             <div class="saved-address-info">
                                 <div class="saved-address-name">💳 {{ __('Credit / Debit Card') }}</div>
-                                <div class="saved-address-detail">
-                                    {{ __('Pay securely with Stripe') }}
-                                </div>
+                                <div class="saved-address-detail">{{ __('Pay securely with Stripe') }}</div>
                             </div>
                         </label>
 
@@ -633,13 +658,12 @@
 
                     {{-- Cart Items --}}
                     @foreach($cartItems as $item)
-                        @php
-                            $price = $item->product->sale_price ?? $item->product->price;
-                        @endphp
+                        @php $price = $item->product->sale_price ?? $item->product->price; @endphp
                         <div class="summary-item">
                             @if($item->product->images)
                                 <img src="{{ asset('storage/' . $item->product->images) }}"
-                                    alt="{{ $item->product->getTranslation('name', app()->getLocale()) }}" class="summary-item-img">
+                                    alt="{{ $item->product->getTranslation('name', app()->getLocale()) }}"
+                                    class="summary-item-img">
                             @else
                                 <div class="summary-item-img"
                                     style="display:flex;align-items:center;justify-content:center;font-size:22px;">🧴</div>
@@ -671,11 +695,13 @@
                         </span>
                     </div>
 
-                    {{-- ✅ Coupon Field --}}
+                    {{-- Coupon Field --}}
                     <div style="margin: 12px 0;">
                         <div style="display:flex;gap:8px;">
                             <input type="text" name="coupon_code" id="coupon-input" class="form-control"
-                                placeholder="{{ __('Coupon code') }}" value="{{ old('coupon_code') }}" style="flex:1;">
+                                placeholder="{{ __('Coupon code') }}"
+                                value="{{ old('coupon_code') }}"
+                                style="flex:1;">
                             <button type="button" onclick="applyCoupon()"
                                 style="padding:10px 14px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--gold-dim);font-size:11px;font-family:Arial,sans-serif;letter-spacing:1px;cursor:pointer;white-space:nowrap;transition:all 0.15s;"
                                 onmouseover="this.style.borderColor='var(--gold-dim)';this.style.color='var(--gold)'"
@@ -683,7 +709,6 @@
                                 {{ __('Apply') }}
                             </button>
                         </div>
-                        {{-- Coupon feedback --}}
                         <div id="coupon-msg"
                             style="font-size:11px;font-family:Arial,sans-serif;margin-top:6px;min-height:16px;"></div>
                     </div>
@@ -722,113 +747,93 @@
 
 @push('scripts')
 <script>
-    const subtotal = {{ $subtotal }};
+    const subtotal  = {{ $subtotal }};
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
- 
-    // بنحتفظ بالقيم دي كمتغيرات عالمية عشان نقدر نعيد حساب الإجمالي
-    // في أي وقت (سواء اتغيرت المحافظة أو اتطبق كوبون) من غير ما نكرر المنطق.
+
     let currentShippingCost = 0;
-    let appliedDiscount = 0;
- 
-    // ── Tabs (Saved / New Address) ──
+    let appliedDiscount     = 0;
+
+    // ── Tabs ──
     function showTab(tab) {
         const isSaved = tab === 'saved';
- 
         document.getElementById('panel-saved')?.style.setProperty('display', isSaved ? 'block' : 'none');
         document.getElementById('panel-new').style.display = isSaved ? 'none' : 'block';
- 
         document.getElementById('tab-saved')?.classList.toggle('active', isSaved);
         document.getElementById('tab-new').classList.toggle('active', !isSaved);
- 
         if (!isSaved) {
-            document.querySelectorAll('input[name="address_id"]')
-                .forEach(r => r.checked = false);
+            document.querySelectorAll('input[name="address_id"]').forEach(r => r.checked = false);
         }
     }
- 
-    // ── إعادة حساب الإجمالي المعروض (subtotal + shipping - discount) ──
+
+    // ── Update Total ──
     function updateTotal() {
         const total = Math.max(0, subtotal + currentShippingCost - appliedDiscount);
         document.getElementById('total-display').textContent = `$${total.toFixed(2)}`;
     }
- 
+
+    // ── Update Shipping ──
     function updateShipping(governorate) {
         if (!governorate) return;
- 
         fetch('{{ route("checkout.shipping.cost") }}', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify({ governorate }),
         })
-            .then(r => r.json())
-            .then(data => {
-                currentShippingCost = parseFloat(data.cost) || 0;
- 
-                document.getElementById('shipping-cost-display').textContent =
-                    currentShippingCost > 0 ? `$${currentShippingCost.toFixed(2)}` : '{{ __("Free") }}';
- 
-                updateTotal();
-            });
+        .then(r => r.json())
+        .then(data => {
+            currentShippingCost = parseFloat(data.cost) || 0;
+            document.getElementById('shipping-cost-display').textContent =
+                currentShippingCost > 0 ? `$${currentShippingCost.toFixed(2)}` : '{{ __("Free") }}';
+            updateTotal();
+        });
     }
- 
-    // ── تطبيق الكوبون (Preview بس - الفحص النهائي بيحصل وقت الـ submit فعليًا) ──
+
+    // ── Apply Coupon ──
     function applyCoupon() {
         const input = document.getElementById('coupon-input');
         const msgEl = document.getElementById('coupon-msg');
-        const code = input.value.trim();
- 
+        const code  = input.value.trim();
+
         if (!code) {
             msgEl.style.color = 'var(--danger)';
             msgEl.textContent = '{{ __("Please enter a coupon code") }}';
             return;
         }
- 
+
         msgEl.style.color = 'var(--text-muted)';
         msgEl.textContent = '{{ __("Checking coupon...") }}';
- 
+
         fetch('{{ route("checkout.coupon.apply") }}', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify({ coupon_code: code }),
         })
-            .then(async (r) => ({ ok: r.ok, body: await r.json() }))
-            .then(({ ok, body }) => {
-                if (ok && body.valid) {
-                    appliedDiscount = parseFloat(body.discount) || 0;
- 
-                    document.getElementById('discount-row').style.display = 'flex';
-                    document.getElementById('discount-display').textContent =
-                        `-$${appliedDiscount.toFixed(2)}`;
- 
-                    msgEl.style.color = '#7ab87a';
-                    msgEl.textContent = body.message;
-                } else {
-                    // كوبون غلط أو منتهي: نصفّر الخصم ونخفي صف الخصم
-                    appliedDiscount = 0;
-                    document.getElementById('discount-row').style.display = 'none';
- 
-                    msgEl.style.color = 'var(--danger)';
-                    msgEl.textContent = body.message || '{{ __("Invalid coupon") }}';
-                }
-                updateTotal();
-            })
-            .catch(() => {
+        .then(async (r) => ({ ok: r.ok, body: await r.json() }))
+        .then(({ ok, body }) => {
+            if (ok && body.valid) {
+                appliedDiscount = parseFloat(body.discount) || 0;
+                document.getElementById('discount-row').style.display  = 'flex';
+                document.getElementById('discount-display').textContent = `-$${appliedDiscount.toFixed(2)}`;
+                msgEl.style.color = '#7ab87a';
+                msgEl.textContent = body.message;
+            } else {
+                appliedDiscount = 0;
+                document.getElementById('discount-row').style.display = 'none';
                 msgEl.style.color = 'var(--danger)';
-                msgEl.textContent = '{{ __("Something went wrong, please try again") }}';
-            });
+                msgEl.textContent = body.message || '{{ __("Invalid coupon") }}';
+            }
+            updateTotal();
+        })
+        .catch(() => {
+            msgEl.style.color = 'var(--danger)';
+            msgEl.textContent = '{{ __("Something went wrong, please try again") }}';
+        });
     }
- 
+
+    // ── Auto-update shipping on load ──
     document.addEventListener('DOMContentLoaded', function () {
         const checked = document.querySelector('input[name="address_id"]:checked');
-        if (checked) {
-            updateShipping(checked.dataset.governorate);
-        }
+        if (checked) updateShipping(checked.dataset.governorate);
     });
 </script>
 @endpush

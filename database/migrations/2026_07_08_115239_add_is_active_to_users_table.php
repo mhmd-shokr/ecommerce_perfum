@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('offers', function (Blueprint $table) {
-            $table->foreignId('coupon_id')
-            ->nullable()
-            ->constrained()
-            ->nullOnDelete();
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_active')->default(false)->after('email_verified_at');
         });
     }
 
@@ -23,10 +20,9 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-{
-    Schema::table('offers', function (Blueprint $table) {
-        $table->dropForeign(['coupon_id']);
-        $table->dropColumn('coupon_id');
-    });
-}
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_active');
+        });
+    }
 };

@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
             [
                 "name"=>'Admin',
                 "password"=>Hash::make('password'),
+                'is_active'=>true,
             ]
         );
 
@@ -29,6 +30,7 @@ class UserSeeder extends Seeder
             [
                 "name"=>'customer',
                 "password"=>Hash::make('password'),
+                'is_active'=>true,
             ]
         );
 

@@ -25,13 +25,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+       
         $wishlist = session()->get('wishlist', []);
         $cart = session()->get('cart', []);
         $request->authenticate();
 
         $request->session()->regenerate();
         $user=auth()->user();
-
+        if (! $user->is_active) {
+            return back()->withErrors([
+                'email' => __('Your account has been suspended. Please contact support.'),
+            ]);
+        }
         if($user->hasRole('admin')){
             session()->forget(['wishlist', 'cart']);
             return redirect()->route('admin.dashboard');

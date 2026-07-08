@@ -51,12 +51,16 @@
                         style="display:block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7248;font-family:Arial,sans-serif;margin-bottom:8px;">
                         {{ __('Coupon Code') }} *
                     </label>
-                    <select name="coupon_id" id="coupon-id">
-                        <option value="">
+                    <select name="coupon_id" id="coupon-id" style="width:100%;background:rgba(200,169,106,0.04);border:1px solid rgba(200,169,106,0.15);border-radius:6px;padding:10px 14px;color:#f0e6d0;font-size:13px;font-family:Arial,sans-serif;outline:none;box-sizing:border-box;
+                                   appearance:none;-webkit-appearance:none;-moz-appearance:none;
+                                   background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%238a7248%22 stroke-width=%221.5%22 fill=%22none%22/></svg>');
+                                   background-repeat:no-repeat;background-position:right 14px center;
+                                   cursor:pointer;">
+                        <option value="" style="background:#121212;color:#9a8870;">
                             {{ __('Select Coupon') }}
                         </option>
                         @foreach($coupons as $coupon)
-                            <option value="{{ $coupon->id }}">
+                            <option value="{{ $coupon->id }}" style="background:#121212;color:#f0e6d0;">
                                 {{ $coupon->code }}
                             </option>
                         @endforeach

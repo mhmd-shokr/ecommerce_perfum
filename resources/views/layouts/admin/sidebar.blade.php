@@ -97,6 +97,11 @@
             {{ __('Products') }}
         </a>
 
+        <a class="nav-link {{ request()->is('admin/shipping-zones*') ? 'active' : '' }}" href="{{ route('admin.shipping-zones.index') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4C2.9 7 2 7.9 2 9v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            {{ __('Shjpping Zones') }}
+        </a>
+
         <div class="nav-section-label">{{ __('Commerce') }}</div>
 
         <a class="nav-link {{ request()->is('admin/orders*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">
@@ -113,13 +118,17 @@
         </a>
 
         <a class="nav-link {{ request()->is('admin/offers*') ? 'active' : '' }}" href="{{ route('admin.offers.index') }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 12l-8 8-8-8V4h8l8 8z"/>
-                <circle cx="9" cy="9" r="1"/>
-            </svg>            {{ __('Offers') }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 12v8H4v-8"/>
+                <path d="M2 7h20v5H2z"/>
+                <path d="M12 7v13"/>
+                <path d="M12 7H8.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7z"/>
+                <path d="M12 7h3.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+            {{ __('Offers') }}
         </a>
 
-        <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}" href="#">
+        <a class="nav-link {{ request()->is('admin/customers*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             {{ __('Customers') }}
         </a>
