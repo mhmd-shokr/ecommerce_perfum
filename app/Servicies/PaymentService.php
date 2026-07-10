@@ -1,6 +1,7 @@
 <?php
 namespace App\Servicies;
 
+use App\Events\OrderPlaced;
 use App\Jobs\NotifyAdminNewOrder;
 use App\Jobs\SendOrderConfirmationEmail;
 use App\Models\Order;
@@ -38,16 +39,16 @@ class PaymentService{
             if(in_array($locked->status, ['processing', 'completed'])){
                 return; 
             }
-            $order->update([
+            $locked->update([
                 'status'=>'processing',
                 'payment_status'=>'pending',
             ]);
             $this->decrementAndClear($order);
         });
-        //mail to customer
-        SendOrderConfirmationEmail::dispatch($order->id);
-        //mail to admin
-        NotifyAdminNewOrder::dispatch($order)->delay(now()->addSeconds(10));
+
+        //Notify admin and customer
+        event(new OrderPlaced($order));
+
     }
 
     public function initiateStripe(Order $order){
@@ -96,10 +97,10 @@ class PaymentService{
             $this->decrementAndClear($order);
 
         });
-         //mail to customer
-            SendOrderConfirmationEmail::dispatch($order->id);
-         //mail to admin
-            NotifyAdminNewOrder::dispatch($order)->delay(now()->addSeconds(10));
+        //Notify admin and customer
+        if(!$failureException){
+            event(new OrderPlaced($order));
+        }
         
         if($failureException){
             throw $failureException;

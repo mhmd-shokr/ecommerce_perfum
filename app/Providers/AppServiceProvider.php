@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\OrderPlaced;
 use App\Interfaces\AddressInterface;
 use App\Interfaces\BrandInterFace;
 use App\Interfaces\CartInterface;
@@ -12,6 +13,8 @@ use App\Interfaces\OrderInterface;
 use App\Interfaces\ProductInterface;
 use App\Interfaces\ShippingZoneInterface;
 use App\Interfaces\UserInterface;
+use App\Listeners\NotifyAdminNewOrderListener;
+use App\Listeners\SendOrderConfirmationListener;
 use App\Models\Address;
 use App\Models\Coupon;
 use App\Models\Offer;
@@ -34,6 +37,7 @@ use App\Repositries\ProductRepository;
 use App\Repositries\ShippingZoneRepository;
 use App\Repositries\UserRepository;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -65,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Order::class,OrderPolicy::class);
         Gate::policy(Coupon::class,  CouponPolicy::class); 
         Gate::policy(Offer::class,   OfferPolicy::class);
+
 
 
         Paginator::useBootstrapFive();

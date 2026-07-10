@@ -21,8 +21,11 @@ class OrderRepository implements OrderInterface{
     public function findOrder(int $orderId){
         return Order::with(['items.product','user','address'])->findOrFail($orderId);
     }
-    public function updateStatus(Order $order,array $data){
-        return $order->update($data);
+    public function updateStatus(Order $order, array $data)
+    {
+        $order->update($data);
+
+        return $order->fresh();
     }
 
     public function OrdersCount(int $userId){

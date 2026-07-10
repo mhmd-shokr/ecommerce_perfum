@@ -1,6 +1,7 @@
 <?php
 namespace  App\Servicies;
 
+use App\Jobs\SendOrderStatusEmail;
 use App\Models\Order;
 use App\Repositries\OrderRepository;
 
@@ -23,7 +24,13 @@ class OrderService{
     }
 
     public function updateStatus(Order $order,array $data){
-        return $this->orderRepository->updateStatus($order,$data);
+        $oldStatus= $order->status;
+        $updatedOrder =$this->orderRepository->updateStatus($order,$data);
+        if ($oldStatus !== $updatedOrder->status) {
+            SendOrderStatusEmail::dispatch($updatedOrder);
+        }
+
+        return $updatedOrder;
     }
     public function ordersCount(int $userId){
         return $this->orderRepository->OrdersCount($userId);
