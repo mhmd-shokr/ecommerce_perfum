@@ -12,18 +12,29 @@ use App\Interfaces\OrderInterface;
 use App\Interfaces\ProductInterface;
 use App\Interfaces\ShippingZoneInterface;
 use App\Interfaces\UserInterface;
+use App\Models\Address;
+use App\Models\Coupon;
+use App\Models\Offer;
+use App\Models\Order;
+use App\Models\Review;
 use App\Models\ShippingZone;
+use App\Policies\AddressPolicy;
+use App\Policies\CouponPolicy;
+use App\Policies\OfferPolicy;
+use App\Policies\OrderPolicy;
+use App\Policies\ReviewPolicy;
+use App\Repositries\AddressRepository;
 use App\Repositries\BrandRepositry;
 use App\Repositries\CartRepository;
 use App\Repositries\CategoryRepositry;
 use App\Repositries\CheckoutRepository;
-use App\Repositries\ProductRepository;
-use App\Repositries\ShippingZoneRepository;
-use App\Repositries\AddressRepository;
 use App\Repositries\CouponRepository;
 use App\Repositries\OrderRepository;
+use App\Repositries\ProductRepository;
+use App\Repositries\ShippingZoneRepository;
 use App\Repositries\UserRepository;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -50,6 +61,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Review::class,ReviewPolicy::class);
+        Gate::policy(Order::class,OrderPolicy::class);
+        Gate::policy(Coupon::class,  CouponPolicy::class); 
+        Gate::policy(Offer::class,   OfferPolicy::class);
+
+
         Paginator::useBootstrapFive();
     }
 }

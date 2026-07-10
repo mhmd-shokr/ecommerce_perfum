@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $admin=User::firstOrCreate(
-            ["email"=>'admin@admin.com'],
+            ["email"=>'mohamed212shokr@gmail.com'],
             [
                 "name"=>'Admin',
                 "password"=>Hash::make('password'),
@@ -34,6 +34,6 @@ class UserSeeder extends Seeder
             ]
         );
 
-        $customer->assignRole('customer');
+        $customer->assignRole('Customer');
     }
 }

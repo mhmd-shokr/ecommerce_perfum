@@ -32,8 +32,11 @@ Route::get('/',[StoreController::class,'home'])->name('home');
 
 Route::get('/products/{slug}',[StoreController::class,'show'])->name('store.products.show');
 Route::get('/shop',[ShopController::class,'shop'])->name('shop.products');
+//review
 Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('store.review')
     ->middleware('auth');
+Route::delete('review/{review}',[ReviewController::class,'delete'])->name('review.destroy')->
+    middleware(['auth','verified']);
 //Wishlist
 Route::post('/wishlist/toggle/{product}',[WishlistController::class,'toggle'])->name('wishlist.toggle');
 Route::get('/wishlist',[WishlistController::class,'index'])->name('wishlist.index');

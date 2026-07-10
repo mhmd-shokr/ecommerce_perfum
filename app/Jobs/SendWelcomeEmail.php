@@ -29,11 +29,17 @@ class SendWelcomeEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        $user=User::find($this->user->id);
+        $user = User::find($this->user->id);
         if(!$user) return;
-        if($user->hasRole('customer')){
-            Mail::to($this->user->email)
-            ->send(new WelcomeEmail($user));
+
+        try {
+            if($user->hasRole('Customer')){
+                Mail::to($user->email)
+                ->send(new WelcomeEmail($user));
+            }
+    
+        } catch (\Throwable $e) {
+            dd($e->getMessage(), $e->getTraceAsString());
         }
     }
 

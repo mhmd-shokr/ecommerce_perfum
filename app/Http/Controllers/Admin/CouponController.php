@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CouponRequest;
+use App\Models\Coupon;
 use App\Servicies\CheckoutService;
 use App\Servicies\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class CouponController extends Controller
 {
@@ -16,6 +18,7 @@ class CouponController extends Controller
     }
 
     public function index(){
+        Gate::authorize('viewAny',Coupon::class);
         $coupons = $this->couponService->getAll();
         return view('admin.coupons.index', compact('coupons'));
     }
@@ -25,7 +28,8 @@ class CouponController extends Controller
         return view('admin.coupons.create');
     }
 
-    public function store(Request $request){
+    public function store(CouponRequest $request){
+        Gate::authorize('create',Coupon::class);
         $validated=$request->validated();
         $validated['is_active']=$request->boolean('is_active',true);
 
@@ -41,6 +45,7 @@ class CouponController extends Controller
         return view('admin.coupons.edit', compact('coupon'));
     }
     public function update(CouponRequest $request, int $id){
+        Gate::authorize('update',Coupon::class);
         $validated=$request->validated();
         $validated['is_active']=$request->boolean('is_active',true);
         $this->couponService->update($id, $validated);
@@ -51,6 +56,9 @@ class CouponController extends Controller
     }
     public function destroy(int $id)
     {
+
+        Gate::authorize('delete',Coupon::class);
+
         $this->couponService->delete($id);
 
         return redirect()

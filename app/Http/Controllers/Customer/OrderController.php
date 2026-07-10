@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Servicies\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -18,13 +19,10 @@ class OrderController extends Controller
     }
 
     public function show(Order $order){
-        try{
+        
+            Gate::authorize('view',$order);
             $order=$this->orderService->getUserOrder(Auth::id(),$order->id);
             return view('customer.orders.show',compact('order'));
-        }
-        catch(\Exception $e){
-            abort(404);
-        }
     }
     
 

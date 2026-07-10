@@ -679,6 +679,46 @@
             color: var(--gold-light);
         }
 
+        .review-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        [dir="rtl"] .review-actions {
+            justify-content: flex-start;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         /* Star rating picker */
         .star-picker {
             display: flex;
@@ -853,7 +893,7 @@
         $hasSale = !is_null($product->sale_price);
         $currentPrice = $hasSale ? $product->sale_price : $product->price;
         $currencySymbol = config('shop.currency_symbol', '$');
-        $isOutOfStock=$product->is_out_of_stock;
+        $isOutOfStock = $product->is_out_of_stock;
     @endphp
 
     {{-- Breadcrumb --}}
@@ -1118,6 +1158,25 @@
                         @endfor
                     </span>
                     <div class="review-comment">{{ $review->comment }}</div>
+
+                    @can('delete', $review)
+                        <div class="review-actions">
+                            <form method="POST" action="{{ route('review.destroy', $review) }}"
+                                onsubmit="return confirm('{{ __('Delete this Review?') }}')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="action-btn del" title="{{ __('Delete') }}">
+                                    <svg viewBox="0 0 24 24">
+                                        <polyline points="3 6 5 6 21 6" />
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                        <path d="M10 11v6" />
+                                        <path d="M14 11v6" />
+                                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    @endcan
                 </div>
             @empty
                 <div class="no-reviews">{{ __('No reviews yet. Be the first to review this product.') }}</div>

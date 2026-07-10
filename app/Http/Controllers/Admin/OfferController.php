@@ -9,21 +9,25 @@ use App\Models\Coupon;
 use App\Models\Offer;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class OfferController extends Controller
 {
     public function index(){
+        Gate::authorize('viewAny',Offer::class);
         $offers=Offer::latest()->paginate(8);
         return view('admin.offers.index',compact('offers'));
     }
 
     public function create(){
+        Gate::authorize('create',Offer::class);
         $coupons=Coupon::where('is_active',true)->get();
         return view('admin.offers.create',compact('coupons'));
     }
 
     public function store(OfferRequest $request){
+        Gate::authorize('create',Offer::class);
         $validated = $request->validated();
 
         if($request->has("image")){
@@ -39,10 +43,12 @@ class OfferController extends Controller
 
     public function show(Offer $offer)
     {
+        Gate::authorize('show',Offer::class);
         return view('admin.offers.show', compact('offer'));
     }
 
     public function send(Offer $offer){
+        Gate::authorize('send',$offer);
         if($offer->is_sent){
             return back()->with('error', __('This offer has already been sent'));
         }

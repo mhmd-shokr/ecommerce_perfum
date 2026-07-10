@@ -507,7 +507,8 @@
         <div class="hero-inner">
             <div>
                 <div class="hero-eyebrow">{{ __('message.New Collection 2025') }}</div>
-                <h1 class="hero-title">{{ __('message.The Art of') }}<br><span>{{ __('message.Luxury') }}</span><br>{{ __('message.Fragrance') }}
+                <h1 class="hero-title">
+                    {{ __('message.The Art of') }}<br><span>{{ __('message.Luxury') }}</span><br>{{ __('message.Fragrance') }}
                 </h1>
                 <div class="hero-gold-rule"></div>
                 <p class="hero-desc">
@@ -519,27 +520,26 @@
                 </div>
             </div>
             @php
-            $bestSeller = $products->where('is_bestseller',1)->first();
+                $bestSeller = $products->where('is_bestseller', 1)->first();
             @endphp
             <div class="hero-visual">
                 <div class="hero-bottle-wrap">
                     <div class="hero-bottle-glow"></div>
-            
+
                     <div class="hero-bottle-icon">
                         @if($bestSeller)
-                            <img src="{{ asset('storage/'.$bestSeller->images) }}" 
-                                 alt="{{ $bestSeller->name }}"
-                                 style="width:120px;height:120px;object-fit:contain;">
+                            <img src="{{ asset('storage/' . $bestSeller->images) }}" alt="{{ $bestSeller->name }}"
+                                style="width:120px;height:120px;object-fit:contain;">
                         @else
                             🧴
                         @endif
                     </div>
-            
+
                     <div class="hero-badge">
                         <div class="hero-badge-num">
                             {{ \App\Models\Product::count() }}+
                         </div>
-            
+
                         <div class="hero-badge-label">
                             {{ __('message.Fragrances') }}
                         </div>
@@ -556,34 +556,35 @@
                 <div class="section-eyebrow">{{ __('message.Handpicked For You') }}</div>
                 <h2 class="section-title">{{ __('message.Featured Fragrances') }}</h2>
                 <div class="section-rule"></div>
-                <p class="section-desc">{{ __('message.Each bottle tells a story. Discover the scents that define a moment.') }}</p>
+                <p class="section-desc">
+                    {{ __('message.Each bottle tells a story. Discover the scents that define a moment.') }}</p>
             </div>
             <div class="products-grid">
-                @foreach ($products as $product )
+                @foreach ($products as $product)
                     @if ($product->is_featured)
-                    <a href="{{route('store.products.show',$product->slug)}}" class="product-card">
-                        <div class="product-img"><img src="{{ asset('storage/'.$product->images) }}" alt="">
-                            @if($product->is_new) <span class="product-new">New</span> @endif
-                            @if($product->sale) <span class="product-sale">Sale</span> @endif
-                            @if($product->is_bestseller)
-                                <span class="product-bestseller">Best Seller</span>
-                            @endif
-                        </div>
-                        <div class="product-body">
-                            <div class="product-cat">{{ $product->category->getTranslation('name', app()->getLocale()) }}</div>
-                            <div class="product-name"> {{ $product->getTranslation('name', app()->getLocale()) }} </div>
-                            <div class="product-footer">
-                                <div><span class="product-price">{{ $product->price }}</span></div>
-                                <div class="product-add"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round">
-                                        <line x1="12" y1="5" x2="12" y2="19" />
-                                        <line x1="5" y1="12" x2="19" y2="12" />
-                                    </svg></div>
+                        <a href="{{route('store.products.show', $product->slug)}}" class="product-card">
+                            <div class="product-img"><img src="{{ asset('storage/' . $product->images) }}" alt="">
+                                @if($product->is_new) <span class="product-new">New</span> @endif
+                                @if($product->sale) <span class="product-sale">Sale</span> @endif
+                                @if($product->is_bestseller)
+                                    <span class="product-bestseller">Best Seller</span>
+                                @endif
                             </div>
-                        </div>
-                    </a>
+                            <div class="product-body">
+                                <div class="product-cat">{{ $product->category->getTranslation('name', app()->getLocale()) }}</div>
+                                <div class="product-name"> {{ $product->getTranslation('name', app()->getLocale()) }} </div>
+                                <div class="product-footer">
+                                    <div><span class="product-price">{{ $product->price }}</span></div>
+                                    <div class="product-add"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round">
+                                            <line x1="12" y1="5" x2="12" y2="19" />
+                                            <line x1="5" y1="12" x2="19" y2="12" />
+                                        </svg></div>
+                                </div>
+                            </div>
+                        </a>
                     @endif
                 @endforeach
-                
+
             </div>
         </div>
     </section>
@@ -601,9 +602,10 @@
                 @foreach($categories as $cat)
                     <a href="#" class="cat-card">
                         @if ($cat->images)
-                        <div class="cat-icon"> <img src="{{ asset('storage/' . $cat->images) }}" alt="{{ $cat->getTranslation('name', app()->getLocale()) }}"></div>
+                            <div class="cat-icon"> <img src="{{ asset('storage/' . $cat->images) }}"
+                                    alt="{{ $cat->getTranslation('name', app()->getLocale()) }}"></div>
                         @else
-                        <span style="font-size:18px;">🧴</span>
+                            <span style="font-size:18px;">🧴</span>
                         @endif
                         <div class="cat-name"> {{ $cat->getTranslation('name', app()->getLocale()) }}</div>
                         <div class="cat-count">{{ $cat->products_count }} {{ __('fragrances') }}</div>
@@ -618,7 +620,8 @@
         <div class="section-eyebrow">{{ __('Stay In The Know') }}</div>
         <h2 class="cta-title">{{ __('Join Our World') }}</h2>
         <p class="cta-desc">
-            {{ __('Subscribe to receive early access to new launches, exclusive offers, and fragrance stories.') }}</p>
+            {{ __('Subscribe to receive early access to new launches, exclusive offers, and fragrance stories.') }}
+        </p>
         <div class="cta-input-row">
             <input class="cta-input" type="email" placeholder="{{ __('Your email address') }}">
             <button class="cta-submit">{{ __('Subscribe') }}</button>

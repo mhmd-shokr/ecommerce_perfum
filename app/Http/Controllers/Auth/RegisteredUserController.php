@@ -43,10 +43,10 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $user->assignRole('customer');
         $otp=$user->generateOtp();
         SendOtpVerificationEmail::dispatch($user,$otp);
         SendWelcomeEmail::dispatch($user)->delay(now()->addSeconds(10));
-        $user->assignRole('customer');
 
         // event(new Registered($user));
 
