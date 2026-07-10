@@ -61,5 +61,4 @@ public function getTopSelling(int $count = 5){
     return Product::withSum('orderItems','quantity')->orderByDesc('order_items_sum_quantity')->
     take($count)->get();
 }
-
 }

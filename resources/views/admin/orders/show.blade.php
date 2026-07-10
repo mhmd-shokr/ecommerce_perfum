@@ -134,6 +134,35 @@
                 </div>
             </div>
 
+             {{-- Update payment-Status --}}
+             @if($order->payment_method === 'cash')
+             <div style="background:#121212;border:1px solid rgba(200,169,106,0.15);border-radius:12px;overflow:hidden;margin-top:20px;">
+                 <div style="padding:14px 24px;border-bottom:1px solid rgba(200,169,106,0.15);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8a7248;font-family:Arial,sans-serif;">
+                     {{ __('Update Payment Status') }}
+                 </div>
+                 <div style="padding:20px 24px;">
+                     <form method="POST" action="{{ route('admin.order.updatePaymentStatus', $order->id) }}">
+                         @csrf
+                         @method('PATCH')
+                         <select name="payment_status"
+                             style="width:100%;background:rgba(200,169,106,0.04);border:1px solid rgba(200,169,106,0.15);border-radius:6px;padding:10px 14px;color:#f0e6d0;font-size:13px;font-family:Arial,sans-serif;outline:none;margin-bottom:12px;">
+                             @foreach(['pending','paid','failed','refunded'] as $ps)
+                                 <option value="{{ $ps }}" style="background:#121212;"
+                                     {{ $order->payment_status === $ps ? 'selected' : '' }}>
+                                     {{ ucfirst($ps) }}
+                                 </option>
+                             @endforeach
+                         </select>
+                         <button type="submit"
+                             style="width:100%;padding:12px;background:#C8A96A;border:none;border-radius:8px;color:#0a0a0a;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif;cursor:pointer;">
+                             {{ __('Update Payment Status') }}
+                         </button>
+                     </form>
+                 </div>
+             </div>
+         @endif
+
+
         </div>
     </div>
 </div>

@@ -36,4 +36,19 @@ class OrderService{
     public function pendingOrdersCount(){
         return $this->orderRepository->pendingOrdersCount();
     }
+    public function updatePaymentStatus(Order $order, string $status)
+{
+    $allowedTransitions = [
+        'pending'  => ['paid', 'failed'],
+        'paid'     => ['refunded'],
+        'failed'   => ['pending', 'paid'],
+        'refunded' => [], 
+    ];
+
+    if (!in_array($status, $allowedTransitions[$order->payment_status] ?? [], true)) {
+        throw new \Exception(__('Invalid payment status transition.'));
+    }
+
+    $order->update(['payment_status' => $status]);
+}
 }

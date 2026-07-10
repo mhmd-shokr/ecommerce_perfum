@@ -54,6 +54,9 @@ Route::middleware(['auth','active'])->group(function () {
     //customer orders
     Route::get('my-orders',[CustomerOrderController::class,'index'])->name('my.orders.index');
     Route::get('my-order/{order}',[CustomerOrderController::class,'show'])->name('my.order.show');
+    //Order Invoice
+    Route::get('my-order/{order}/invoice',[AdminOrderController::class,'invoice'])->name('my.order.invoice');
+
     //checkout
     Route::get('checkout', [CheckoutController::class, 'index'])
         ->name('checkout.index');
@@ -93,6 +96,7 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group
     Route::get('orders',[AdminOrderController::class,'index'])->name('orders.index');
     Route::get('order/{order}',[AdminOrderController::class,'show'])->name('order.show');
     Route::patch('order/{order}',[AdminOrderController::class,'update'])->name('order.update');
+    Route::patch('order/{order}/update-payment-status',[AdminOrderController::class,'updatePaymentStatus'])->name('order.updatePaymentStatus');
     //coupon 
     Route::resource('coupons', CouponController::class)->except('show');
     //offers
