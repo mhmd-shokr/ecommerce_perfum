@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Order;
+use App\Servicies\InvoiceService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -47,6 +48,13 @@ class OrderConfirmationMail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $invoiceService=app(InvoiceService::class);
+        return [
+            Attachment::fromData(
+                fn()=>$invoiceService->output($this->order),
+                'invoice-' . $this->order->order_number . '.pdf'
+            )->withMime('application/pdf'),
+        ];
     }
+
 }
