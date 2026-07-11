@@ -1,8 +1,10 @@
 <?php
 namespace App\Servicies;
+use App\Helpers\CacheHelper;
 use App\Interfaces\ProductInterface;
 use App\Models\Product;
 use App\Servicies\StockService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -52,7 +54,7 @@ class ProductService{
         if ($stockQty > 0) {
             $this->stockService->increase($product, $stockQty, 'opening stock');
         }
-    
+CacheHelper::clearDashboardCache();    
         return $product;
     }
     
@@ -92,7 +94,7 @@ class ProductService{
         }
     
         $this->repository->update($id, $data);
-    
+CacheHelper::clearDashboardCache();
         return $this->repository->findWithRelations($id);
     }
 
@@ -100,9 +102,13 @@ class ProductService{
     
     
     public function deleteProduct(int $id): bool
-    {
-        return $this->repository->delete($id);
-    }
+{
+    $deleted = $this->repository->delete($id);
+
+    Cache::forget('dashboard.stats');
+
+    return $deleted;
+}
     
     public function getProductBySlug(string $slug){
         return $this->repository->findBySlug($slug);

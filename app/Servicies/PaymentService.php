@@ -2,14 +2,16 @@
 namespace App\Servicies;
 
 use App\Events\OrderPlaced;
+use App\Helpers\CacheHelper;
 use App\Jobs\NotifyAdminNewOrder;
 use App\Jobs\SendOrderConfirmationEmail;
-use App\Models\Order;
 
+use App\Models\Order;
 use App\Repositries\CheckoutRepository;
-use Illuminate\Support\Facades\DB;
 use App\Servicies\StockService;
 use App\Servicies\StripeService;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class PaymentService{
     public function __construct(
@@ -43,7 +45,8 @@ class PaymentService{
                 'status'=>'processing',
                 'payment_status'=>'pending',
             ]);
-            $this->decrementAndClear($order);
+            $this->decrementAndClear($locked);
+    CacheHelper::clearDashboardCache();
         });
 
         //Notify admin and customer
@@ -94,9 +97,8 @@ class PaymentService{
                 'payment_status'=>'paid',
             ]);
 
-            $this->decrementAndClear($order);
-
-        });
+            $this->decrementAndClear($locked);
+    CacheHelper::clearDashboardCache();        });
         //Notify admin and customer
         if(!$failureException){
             event(new OrderPlaced($order));

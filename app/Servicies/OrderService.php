@@ -4,7 +4,8 @@ namespace  App\Servicies;
 use App\Jobs\SendOrderStatusEmail;
 use App\Models\Order;
 use App\Repositries\OrderRepository;
-
+use Illuminate\Support\Facades\Cache;
+use App\Helpers\CacheHelper;
 class OrderService{
     public function __construct(protected OrderRepository $orderRepository){}
 
@@ -29,8 +30,8 @@ class OrderService{
         if ($oldStatus !== $updatedOrder->status) {
             SendOrderStatusEmail::dispatch($updatedOrder);
         }
-
-        return $updatedOrder;
+        CacheHelper::clearDashboardCache();
+                return $updatedOrder;
     }
     public function ordersCount(int $userId){
         return $this->orderRepository->OrdersCount($userId);
@@ -56,6 +57,10 @@ class OrderService{
         throw new \Exception(__('Invalid payment status transition.'));
     }
 
-    $order->update(['payment_status' => $status]);
+    $updated=$order->update(['payment_status' => $status]);
+    if ($updated) {
+        CacheHelper::clearDashboardCache();
+}
+return $updated;
 }
 }
