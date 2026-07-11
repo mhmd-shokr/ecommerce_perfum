@@ -2,6 +2,7 @@
 namespace App\Servicies;
 
 use App\Interfaces\BrandInterFace;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -13,7 +14,8 @@ class BrandService{
     }
 
     public function getBrands(){
-        return $this->brandRepository->all();
+        return Cache::remember('home.brands',now()->addHours(1)
+        ,fn()=>$this->brandRepository->all()) ;
     }
 
     public function getBrandById(int $id){

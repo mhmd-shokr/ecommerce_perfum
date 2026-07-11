@@ -2,6 +2,7 @@
 namespace App\Servicies;
 use App\Interfaces\CategoryInterface;
 use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -9,7 +10,8 @@ class CategorySevice{
     public function __construct(protected CategoryInterface $repository){}
 
     public function getCategories(){
-        return $this->repository->getPaginateCategories();
+        return Cache::remember('home.categories',now()->addHours(1),
+        fn()=> $this->repository->getPaginateCategories());
     }
 
     public function getAllCategories($perPage){

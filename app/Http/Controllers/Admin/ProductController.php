@@ -32,6 +32,7 @@ class ProductController extends Controller
     {
         $categories=$this->categoryService->getCategories();
         $brands=Brand::all();
+        
         return view('admin.products.create', compact('categories', 'brands'));
     }
 

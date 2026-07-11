@@ -23,7 +23,9 @@ class ProductService{
 
     public function getPaginatedProducts(int $perPage = 10)
     {
-        return $this->repository->getPaginatedActiveWithRelations($perPage);
+        return Cache::remember('home.products.page'.request('page',1)
+        ,now()->addMinutes(30)
+        ,fn()=>$this->repository->getPaginatedActiveWithRelations($perPage)) ;
     }
     public function geyProductById($id){
         return $this->repository->findWithRelations($id);
@@ -54,7 +56,8 @@ class ProductService{
         if ($stockQty > 0) {
             $this->stockService->increase($product, $stockQty, 'opening stock');
         }
-CacheHelper::clearDashboardCache();    
+CacheHelper::clearProductCaches($product); 
+
         return $product;
     }
     
@@ -94,7 +97,8 @@ CacheHelper::clearDashboardCache();
         }
     
         $this->repository->update($id, $data);
-CacheHelper::clearDashboardCache();
+CacheHelper::clearProductCaches($product); 
+
         return $this->repository->findWithRelations($id);
     }
 
@@ -102,20 +106,31 @@ CacheHelper::clearDashboardCache();
     
     
     public function deleteProduct(int $id): bool
-{
-    $deleted = $this->repository->delete($id);
+    {
+        $product = $this->repository->find($id);
+    
+        if (! $product) {
+            return false;
+        }
+    
+        $deleted = $this->repository->delete($id);
+    
+        if ($deleted) {
+            CacheHelper::clearProductCaches($product);    
 
-    Cache::forget('dashboard.stats');
-
-    return $deleted;
-}
+        }
+    
+        return $deleted;
+    }
     
     public function getProductBySlug(string $slug){
-        return $this->repository->findBySlug($slug);
+        return Cache::remember("product.$slug",now()->addMinutes(30),
+        fn()=>$this->repository->findBySlug($slug)) ;
     }
 
     public function getRelatedProduct(Product $product){
-        return $this->repository->getRelatedProducts($product);
+        return Cache::remember("product.related.$product->id",now()->addMinutes(30),
+        fn()=> $this->repository->getRelatedProducts($product));
     }
 
 }
