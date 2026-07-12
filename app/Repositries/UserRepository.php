@@ -11,4 +11,8 @@ class UserRepository implements UserInterface{
             $q->where('name','customer');
         })->count();
     }
+
+    public function create(array $data){
+        return User::create($data);
+    }
 }
