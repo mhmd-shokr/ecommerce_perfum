@@ -5,6 +5,7 @@ use App\Interfaces\ProductInterface;
 use App\Models\Product;
 use App\Servicies\StockService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -21,13 +22,35 @@ class ProductService{
         return $this->repository->getActiveWithRelations();
     }
 
-    public function getPaginatedProducts(int $perPage = 10)
-    {
-        return Cache::remember('home.products.page'.request('page',1)
-        ,now()->addMinutes(30)
-        ,fn()=>$this->repository->getPaginatedActiveWithRelations($perPage)) ;
+    public function getAdminProduct(Product $product): Product
+{
+    return Cache::remember(
+        "admin.product.{$product->id}",
+        now()->addMinutes(30),
+        fn () => $this->repository->findWithRelations($product->id)
+    );
+}
+    public function getPublicProduct(string $slug){
+        return Cache::remember(
+            "customer.product.{$slug}",
+            now()->addMinutes(30),
+            fn () => $this->repository->findBySlug($slug)
+        );
     }
-    public function geyProductById($id){
+    public function getPaginatedProducts(array $filters=[] ,int $perPage = 10,  bool $isAdmin=false)
+    {
+        $cacheKey='products.'.md5(json_encode([
+            'filters'=>$filters,
+            'page'=>request('page',1),
+            'per_page'=>$perPage,
+            'locale'=>app()->getLocale(),
+            'admin'=>$isAdmin
+        ]));
+        return Cache::remember($cacheKey
+        ,now()->addMinutes(30)
+        ,fn()=>$this->repository->filterProducts($filters,$perPage,$isAdmin)) ;
+    }
+    public function getProductById($id){
         return $this->repository->findWithRelations($id);
     }
 
@@ -47,46 +70,50 @@ class ProductService{
         if (request()->hasFile('images')) {
             $data['images'] = request()->file('images')->store('products', 'public');
         }
-    
         $stockQty = $data['stock_quantity'] ?? 0;
         unset($data['stock_quantity']);
+        $product = DB::transaction(function() use($stockQty,$data){
+            $product = $this->repository->create($data);
     
-        $product = $this->repository->create($data);
-    
-        if ($stockQty > 0) {
-            $this->stockService->increase($product, $stockQty, 'opening stock');
-        }
-CacheHelper::clearProductCaches($product); 
-
+            if ($stockQty > 0) {
+                $this->stockService->increase($product, $stockQty, 'opening stock');
+            }
+            return $product->fresh();
+        });
+        CacheHelper::clearProductCaches($product); 
         return $product;
     }
     
-    public function updateProduct(int $id, array $data)
+    public function updateProduct(Product $product, array $data)
     {
-        $product = $this->repository->findWithRelations($id);
+        $product = $this->repository->findWithRelations($product->id);
     
         // Generate slug
         if (isset($data['name']['en'])) {
             $slug = Str::slug($data['name']['en']);
             $original = $slug;
             $count = 1;
-            while ($this->repository->findBySlugExceptId($slug, $id)) {
+            while ($this->repository->findBySlugExceptId($slug, $product->id)) {
                 $slug = $original . '-' . $count++;
             }
             $data['slug'] = $slug;
         }
     
-        // Handle stock adjustment
+        
+    
+        DB::transaction(function() use($product,$data){
+            // Handle stock adjustment
         if (isset($data['stock_quantity'])) {
-            $diff = $data['stock_quantity'] - $product->stock_quantity;
-            if ($diff > 0) {
+            $currentStock = $product->stock_quantity ?? 0;
+            $diff = $data['stock_quantity'] - $currentStock;            if ($diff > 0) {
                 $this->stockService->increase($product, $diff, 'manual adjustment');
             } elseif ($diff < 0) {
                 $this->stockService->decrease($product, abs($diff), 'manual adjustment');
             }
             unset($data['stock_quantity']);
         }
-    
+
+        
         if (request()->hasFile('images')) {
             if ($product->images && Storage::disk('public')->exists($product->images)) {
                 Storage::disk('public')->delete($product->images);
@@ -96,10 +123,12 @@ CacheHelper::clearProductCaches($product);
             unset($data['images']);
         }
     
-        $this->repository->update($id, $data);
-CacheHelper::clearProductCaches($product); 
 
-        return $this->repository->findWithRelations($id);
+        $this->repository->update($product->id, $data);
+
+        });
+        CacheHelper::clearProductCaches($product); 
+        return $this->repository->findWithRelations($product->id)->fresh();
     }
 
 
@@ -129,8 +158,21 @@ CacheHelper::clearProductCaches($product);
     }
 
     public function getRelatedProduct(Product $product){
-        return Cache::remember("product.related.$product->id",now()->addMinutes(30),
+        return Cache::remember("product.related.{$product->id}",now()->addMinutes(30),
         fn()=> $this->repository->getRelatedProducts($product));
     }
 
+    public function filterProducts(
+        array $filters = [],
+        int $perPage = 10,
+        bool $isAdmin = false
+    )
+    {
+        return $this->repository
+            ->filterProducts(
+                $filters,
+                $perPage,
+                $isAdmin
+            );
+    }
 }

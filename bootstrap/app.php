@@ -13,7 +13,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
+use Spatie\Permission\Exceptions\UnauthorizedException; 
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,26 +26,28 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'webhook/stripe',
         ]);
+
         $middleware->alias([
             'role'=>RoleMiddleware::class,
             'permission'=>PermissionMiddleware::class,
             'role_or_permission'=>RoleOrPermissionMiddleware::class,
             'active'=>EnsureUserIsActive::class,
-            
         ]);
 
         $middleware->web(append:[SetLocale::class,EnsureUserIsActive::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function(ValidationException $e,$request){
-            if($request->is('api/*')){
+        
+        $exceptions->render(function (UnauthorizedException $e, $request) {
+            if ($request->is('api/*')) {
                 return response()->json([
-                    'success'=>false,
-                    'message'=>'validation failed',
-                    'errors'=>$e->errors(),
-                ]);
+                    'success' => false,
+                    'message' => 'Unauthorized access. You do not have the required role.',
+                    'required_roles' => $e->getRequiredRoles() 
+                ], 403);
             }
         });
+
         $exceptions->render(function (ValidationException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([
@@ -55,7 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 422);
             }
         });
-        
+
         $exceptions->render(function (AuthenticationException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([
@@ -64,7 +66,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 401);
             }
         });
-        
+
         $exceptions->render(function (AuthorizationException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([
@@ -73,35 +75,32 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 403);
             }
         });
-        
-        $exceptions->render(function (ModelNotFoundException $e, $request) {
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Resource not found.',
-                ], 404);
-            }
-        });
-        
+
         $exceptions->render(function (NotFoundHttpException $e, $request) {
             if ($request->is('api/*')) {
+                $previous=$e->getPrevious();
+                if($previous instanceof ModelNotFoundException){
+                    $model=class_basename($previous->getModel());
+                    return response()->json([
+                        'success' => false,
+                        'message' => "{$model} not found.",
+                    ], 404);
+                }
                 return response()->json([
                     'success' => false,
                     'message' => 'Endpoint not found.',
                 ], 404);
             }
         });
-        
-        $exceptions->render(function (Throwable $e, $request) {
+
+        $exceptions->render(function (\Throwable $e, $request) {
             if ($request->is('api/*')) {
-        
                 if (config('app.debug')) {
                     return response()->json([
                         'success' => false,
                         'message' => $e->getMessage(),
                     ], 500);
                 }
-        
                 return response()->json([
                     'success' => false,
                     'message' => 'Something went wrong.',

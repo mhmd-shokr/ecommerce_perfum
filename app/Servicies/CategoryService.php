@@ -1,12 +1,14 @@
 <?php
 namespace App\Servicies;
+
+use App\Helpers\CacheHelper;
 use App\Interfaces\CategoryInterface;
 use App\Models\Category;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class CategorySevice{
+class CategoryService{
     public function __construct(protected CategoryInterface $repository){}
 
     public function getCategories(){
@@ -41,12 +43,13 @@ class CategorySevice{
                 ->store('categories', 'public');
         }
         $data['status']=$data['status'] ??0;
-        return $this->repository->create($data);
+       $category= $this->repository->create($data);
+       CacheHelper::clearCategoryCaches($category);
+        return  $category;
     }
 
     public function updateCategory(int $id , array $data){
 
-        
         $category=$this->repository->findOrFail($id);
 
         if(isset($data['name']['en'])){
@@ -63,8 +66,10 @@ class CategorySevice{
         }else{
             unset($data['images']);
         }
-        $data['status']=$data['status'] ??0;
-
+        if (isset($data['status'])) {
+            $data['status'] = (int) $data['status'];
+        }
+        CacheHelper::clearCategoryCaches($category);
         return $this->repository->update($id,$data);
     }
 
@@ -74,7 +79,7 @@ class CategorySevice{
         if($category->images && Storage::disk('public')->exists($category->images)){
             Storage::disk("public")->delete($category->images);
         }
-
+        CacheHelper::clearCategoryCaches($category);
         return $this->repository->delete($id);
     }
     

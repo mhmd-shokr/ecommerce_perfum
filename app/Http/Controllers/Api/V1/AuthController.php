@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Api\Auth\RegisterRequest;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Api\Auth\ResetPasswordRequest;
+use App\Http\Requests\Api\Auth\VerifyOtpRequest;
+use App\Http\Requests\Api\Auth\VerifyResetOtpRequest;
+use App\Http\Requests\Api\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
+use App\Jobs\SendWelcomeEmail;
 use App\Servicies\ApiAuthService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -21,6 +26,7 @@ class AuthController extends Controller
     public function register(RegisterRequest $request){
         $validated=$request->validated();
         $registered=$this->apiAuthService->register($validated);
+        
 
         return $this->successResponse(
             [
@@ -63,6 +69,58 @@ class AuthController extends Controller
         return $this->successResponse(
             null,
             'Logged out from all devices.'
+        );
+    }
+
+    public function verifyEmail(VerifyOtpRequest $request){
+        $validated=$request->validated();
+        $user=$request->user();
+        $this->apiAuthService->verifyEmail($user,$validated['otp']);
+        SendWelcomeEmail::dispatch($user);
+        return $this->successResponse(
+            null,
+            'Email verified successfully.'
+        );
+    }
+
+    public function resendOtp(Request $request){
+        $user=$request->user();
+        $this->apiAuthService->resendOtp($user);
+        return $this->successResponse(
+            null,
+            'OTP resent successfully'
+        );
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request)
+    {
+        $validated=$request->validated('email');
+        $this->apiAuthService->forgotPassword($validated);
+        return $this->successResponse(
+            null,
+            'If the email exists, a password reset code has been sent.'
+        );
+    }
+
+    public function verifyResetOtp(VerifyResetOtpRequest $request){
+        $token = $this->apiAuthService->verifyResetOtp(
+            $request->validated('email'),
+            $request->validated('otp')
+        );
+    
+        return $this->successResponse(
+            [
+                'reset_token' => $token,
+            ],
+            'OTP verified successfully.'
+        );
+    }
+    public function resetPassword(ResetPasswordRequest $request){
+        $this->apiAuthService->resetPassword($request->validated('reset_token'),$request->validated('password'));
+
+        return $this->successResponse(
+            null,
+            'Password reset successfully. Please login again.'
         );
     }
 }

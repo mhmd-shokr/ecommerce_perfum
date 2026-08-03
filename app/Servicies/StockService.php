@@ -36,7 +36,7 @@ class StockService{
             ]);
             //Update product stock
             if($type=='increase'){
-                $product->stock_quantity+=$quantity;
+                $locked->stock_quantity+=$quantity;
             }else{
                 $locked->stock_quantity -= $quantity;
             }

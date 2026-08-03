@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Servicies\BrandService;
-use App\Servicies\CategorySevice;
+use App\Servicies\CategoryService;
 use App\Servicies\ProductService;
 use Illuminate\Http\Request;
 
@@ -13,7 +13,7 @@ class StoreController extends Controller
     protected $proService;
     protected $catService;
     protected $brService;
-    public function __construct(ProductService $proService,CategorySevice $catService,BrandService $brService){
+    public function __construct(ProductService $proService,CategoryService $catService,BrandService $brService){
         $this->proService=$proService;
         $this->catService=$catService;
         $this->brService=$brService;
@@ -21,7 +21,7 @@ class StoreController extends Controller
     public function home(){
         $categories=$this->catService->getCategories();
         $brands=$this->brService->getBrands();
-        $products=$this->proService->getPaginatedProducts(8);
+        $products=$this->proService->getPaginatedProducts([],8);
 
         return view('customer.home',compact('categories','brands','products'));
     }

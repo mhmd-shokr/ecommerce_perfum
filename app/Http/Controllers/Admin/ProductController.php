@@ -9,21 +9,21 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Servicies\ProductService;
-use App\Servicies\CategorySevice;
+use App\Servicies\CategoryService;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
     protected $services;
     protected $categoryService;
-    public function __construct(ProductService $services,CategorySevice $categoryService)
+    public function __construct(ProductService $services,CategoryService $categoryService)
     {
         $this->services=$services;
         $this->categoryService=$categoryService;
     }
     public function index()
     {
-        $products =$this->services->getPaginatedProducts(8);
+        $products =$this->services->getPaginatedProducts([],8);
 
         return view('admin.products.index', compact('products'));
     }

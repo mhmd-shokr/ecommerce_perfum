@@ -22,7 +22,6 @@ Interface ProductInterface{
     public function getPaginatedActiveWithRelations(int $perPage=10);
 
     public function findWithRelations(int $id);
-    // public function getTopSelling(int $count=5);
 
     public function countActive();
 
@@ -31,6 +30,6 @@ Interface ProductInterface{
     public function findBySlugExceptId(string $slug,int $id);
 
     public function getRelatedProducts(Product $product);
-    public function filterProducts(array $filters);
+    public function filterProducts(array $filters,int $perPage=10,bool $isAdmin );
 
 }

@@ -25,7 +25,8 @@ class  BrandRepositry  implements BrandInterFace{
 
     public function update(int $id , array $data){
         $brand=Brand::findOrFail($id);
-        return $brand->update($data);
+        $brand->update($data);
+        return $brand;
     }
 
 
@@ -37,11 +38,10 @@ class  BrandRepositry  implements BrandInterFace{
     public function count(){
         return Brand::count();
     }
-    public function getActiveWithProductCount()
+    public function paginate(int $perPage = 10)
 {
-    return Brand::where('status', 1)
-        ->withCount(['products' => fn($q) => $q->where('status', 1)])
-        ->orderBy('name->en')
-        ->get();
+    return Brand::withCount('products')
+        ->latest()
+        ->paginate($perPage);
 }
 }

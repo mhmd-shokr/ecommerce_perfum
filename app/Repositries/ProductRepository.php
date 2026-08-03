@@ -18,6 +18,7 @@ class ProductRepository implements ProductInterface{
         return Product::findOrFail($id);
     }
 
+
     public function create(array $data){
         return Product::create($data);
     }
@@ -47,7 +48,7 @@ class ProductRepository implements ProductInterface{
     }
 
     public function getPaginatedActiveWithRelations(int $perPage=10){
-        return Product::with(['category','brand','sizes','fragranceNotes','stockMovements'])->paginate($perPage);
+        return Product::where('status',1)->with(['category','brand','sizes','fragranceNotes','stockMovements'])->paginate($perPage);
     }
     public function findWithRelations(int $id){
         return Product::with([
@@ -85,104 +86,224 @@ class ProductRepository implements ProductInterface{
     {
         return Product::with(['category', 'brand', 'sizes', 'fragranceNotes','reviews'])
             ->where('slug', $slug)
-            ->first();
+            ->firstOrFail();
     }
 
     public function findBySlugExceptId(string $slug,int $id){
         return Product::where('slug',$slug)->where('id','!=',$id)->first();
     }
     
-    public function filterProducts(array $filters)
+    public function filterProducts(array $filters=[],int $perPage=10,bool $isAdmin=false)
     {
-        $query = Product::query()->with(['category', 'brand'])->where('status', 1);
+        // $query = Product::query()->with(['category', 'brand'])->where('status', 1);
     
-        // Search
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
+        // // Search
+        // if (!empty($filters['search'])) {
+        //     $search = $filters['search'];
     
-            $query->where(function ($q) use ($search) {
-                $q->where('name->en', 'like', "%{$search}%")
-                  ->orWhere('name->ar', 'like', "%{$search}%");
-            });
-        }
+        //     $query->where(function ($q) use ($search) {
+        //         $q->where('name->en', 'like', "%{$search}%")
+        //           ->orWhere('name->ar', 'like', "%{$search}%");
+        //     });
+        // }
     
-        // Category
-        if (!empty(array_filter((array) ($filters['category'] ?? [])))) {
-            $query->whereIn('category_id', (array) $filters['category']);
-        }
+        // // Category
+        // if (!empty(array_filter((array) ($filters['category'] ?? [])))) {
+        //     $query->whereIn('category_id', (array) $filters['category']);
+        // }
     
-        // Brand
-        if (!empty(array_filter((array) ($filters['brand'] ?? [])))) {
-            $query->whereIn('brand_id', (array) $filters['brand']);
-        }
+        // // Brand
+        // if (!empty(array_filter((array) ($filters['brand'] ?? [])))) {
+        //     $query->whereIn('brand_id', (array) $filters['brand']);
+        // }
     
-        // Price Range (FIXED)
-        $min = $filters['min_price'] ?? null;
-        $max = $filters['max_price'] ?? null;
+        // // Price Range (FIXED)
+        // $min = $filters['min_price'] ?? null;
+        // $max = $filters['max_price'] ?? null;
     
-        if (($min !== null && $min !== '') && ($max !== null && $max !== '')) {
+        // if (($min !== null && $min !== '') && ($max !== null && $max !== '')) {
     
-            $min = (float) $min;
-            $max = (float) $max;
+        //     $min = (float) $min;
+        //     $max = (float) $max;
     
-            // swap if invalid range
-            if ($min > $max) {
-                [$min, $max] = [$max, $min];
-            }
+        //     // swap if invalid range
+        //     if ($min > $max) {
+        //         [$min, $max] = [$max, $min];
+        //     }
     
-            $query->whereBetween('price', [$min, $max]);
+        //     $query->whereBetween('price', [$min, $max]);
     
-        } else {
-            if ($min !== null && $min !== '') {
-                $query->where('price', '>=', (float) $min);
-            }
+        // } else {
+        //     if ($min !== null && $min !== '') {
+        //         $query->where('price', '>=', (float) $min);
+        //     }
     
-            if ($max !== null && $max !== '') {
-                $query->where('price', '<=', (float) $max);
-            }
-        }
+        //     if ($max !== null && $max !== '') {
+        //         $query->where('price', '<=', (float) $max);
+        //     }
+        // }
     
-        // In Stock (FIXED)
-        if (isset($filters['in_stock']) && $filters['in_stock'] == 1) {
-            $query->where('is_out_of_stock', 0);
-        }
+        // // In Stock (FIXED)
+        // if (isset($filters['in_stock']) && $filters['in_stock'] == 1) {
+        //     $query->where('is_out_of_stock', 0);
+        // }
     
-        // On Sale
-        if (!empty($filters['on_sale'])) {
-            $query->whereNotNull('sale_price');
-        }
+        // // On Sale
+        // if (!empty($filters['on_sale'])) {
+        //     $query->whereNotNull('sale_price');
+        // }
     
-        // New
-        if (!empty($filters['is_new'])) {
-            $query->where('created_at', '>=', now()->subDays(7));
-        }
+        // // New
+        // if (!empty($filters['is_new'])) {
+        //     $query->where('created_at', '>=', now()->subDays(7));
+        // }
     
-        // Sort
-        switch ($filters['sort'] ?? null) {
+        // // Sort
+        // switch ($filters['sort'] ?? null) {
     
-            case 'price_asc':
-                $query->orderBy('price');
-                break;
+        //     case 'price_asc':
+        //         $query->orderBy('price');
+        //         break;
     
-            case 'price_desc':
-                $query->orderByDesc('price');
-                break;
+        //     case 'price_desc':
+        //         $query->orderByDesc('price');
+        //         break;
     
-            case 'top_rated':
-                $query->withAvg([
-                    'reviews as average_rating' => function ($q) {
-                        $q->where('is_approved', 1);
+        //     case 'top_rated':
+        //         $query->withAvg([
+        //             'reviews as average_rating' => function ($q) {
+        //                 $q->where('is_approved', 1);
+        //             }
+        //         ], 'rating');
+    
+        //         $query->orderByDesc('average_rating');
+        //         break;
+    
+        //     default:
+        //         $query->latest();
+        // }
+    
+        // return $query->paginate($perPage)->withQueryString();
+
+        $allowedSorts = [
+            'price',
+            'name',
+            'created_at',
+            'stock_quantity'
+        ];
+    
+        return Product::query()
+            ->with(['category', 'brand'])
+
+            // Status for customer
+            ->when(!$isAdmin,fn($query)=>$query->where('status',1))
+            // Status for admin
+            ->when($isAdmin&&
+                array_key_exists('status', $filters),
+                fn($query) =>
+                    $query->where('status', $filters['status'])
+            )
+    
+            // Search
+            ->when(
+                $filters['search'] ?? null,
+                fn($query, $search) =>
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name->en', 'like', "%{$search}%")
+                            ->orWhere('name->ar', 'like', "%{$search}%")
+                            ->orWhere('sku', 'like', "%{$search}%")
+                            ->orWhere('slug', 'like', "%{$search}%");
+                    })
+            )
+    
+            // Category
+            ->when(
+                $filters['category'] ?? null,
+                fn($query, $category) =>
+                    $query->whereIn('category_id', (array) $category)
+            )
+    
+            // Brand
+            ->when(
+                $filters['brand'] ?? null,
+                fn($query, $brand) =>
+                    $query->whereIn('brand_id', (array) $brand)
+            )
+    
+            // Featured
+            ->when(
+                array_key_exists('featured', $filters),
+                fn($query) =>
+                    $query->where('is_featured', $filters['featured'])
+            )
+    
+            // Price Min
+            ->when(
+                isset($filters['min_price']) && $filters['min_price'] !== '',
+                fn($query) =>
+                    $query->where('price', '>=', (float) $filters['min_price'])
+            )
+    
+            // Price Max
+            ->when(
+                isset($filters['max_price']) && $filters['max_price'] !== '',
+                fn($query) =>
+                    $query->where('price', '<=', (float) $filters['max_price'])
+            )
+    
+            // In Stock
+            ->when(
+                isset($filters['in_stock']) && $filters['in_stock'] == 1,
+                fn($query) =>
+                    $query->where('is_out_of_stock', 0)
+            )
+    
+            // On Sale
+            ->when(
+                !empty($filters['on_sale']),
+                fn($query) =>
+                    $query->whereNotNull('sale_price')
+            )
+    
+            // New Products (last 7 days)
+            ->when(
+                !empty($filters['is_new']),
+                fn($query) =>
+                    $query->where('created_at', '>=', now()->subDays(7))
+            )
+    
+            // Sorting
+            ->when(
+                $filters['sort'] ?? null,
+                function ($query, string $sort) use ($allowedSorts) {
+                    
+                    //top rated
+                    if($sort ==='top_rated'){
+                        $query->whereHas('reviews', function($q){
+                            $q->where('is_approved',1);
+                        })
+                        ->withAvg(['reviews as average_rating'=>function($q){
+                            $q->where('is_approved',1);
+                        }
+                    ],'rating')->orderByDesc('average_rating');
+                    return $query;
                     }
-                ], 'rating');
+                    $direction = str_starts_with($sort, '-') 
+                        ? 'desc' 
+                        : 'asc';
     
-                $query->orderByDesc('average_rating');
-                break;
+                    $column = ltrim($sort, '-');
     
-            default:
-                $query->latest();
-        }
+                    if (in_array($column, $allowedSorts)) {
+                        $query->orderBy($column, $direction);
+                    }
+                },
+                fn($query) =>
+                    $query->latest()
+            )
     
-        return $query->paginate(12)->withQueryString();
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     public function lowStockProducts()

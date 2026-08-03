@@ -1,6 +1,7 @@
 <?php
 namespace App\Servicies;
 
+use App\Helpers\CacheHelper;
 use App\Interfaces\BrandInterFace;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,11 @@ class BrandService{
     {
         $this->brandRepository=$brandRepository;
     }
-
+    public function getAllBrands(int $perPage = 10)
+    {
+        return $this->brandRepository->paginate($perPage);
+    }
+    
     public function getBrands(){
         return Cache::remember('home.brands',now()->addHours(1)
         ,fn()=>$this->brandRepository->all()) ;
@@ -29,7 +34,9 @@ class BrandService{
         if(isset($data['logo'])){
             $data['logo']=$data['logo']->store('brands','public');
         }
-        return $this->brandRepository->create($data);    
+        $brand = $this->brandRepository->create($data);
+        CacheHelper::clearBrandCaches($brand);
+        return $brand;
     }
 
     public function updateBrand(int $id,array $data){
@@ -47,7 +54,9 @@ class BrandService{
         }else{
             unset($data['logo']);
         }
-        return $this->brandRepository->update($id,$data);
+        $updated = $this->brandRepository->update($id,$data);
+        CacheHelper::clearBrandCaches($brand);
+        return $updated;
     }
 
     public function deleteBrand($id){
@@ -55,6 +64,8 @@ class BrandService{
         if($brand->logo && Storage::disk('public')->exists($brand->logo)){
             Storage::disk('public')->delete($brand->logo);
         }   
-        return $this->brandRepository->delete($id); 
+        $deleted = $this->brandRepository->delete($id);
+        CacheHelper::clearBrandCaches($brand);
+        return $deleted;
     }
 }

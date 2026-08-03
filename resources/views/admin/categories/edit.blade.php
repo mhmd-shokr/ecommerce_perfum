@@ -817,6 +817,7 @@
                                 <div class="toggle-label">{{ __('Active') }}</div>
                                 <div class="toggle-desc">{{ __('Show this category on the store') }}</div>
                             </div>
+                            <input type="hidden" name="status" value="0">
                             <label class="toggle">
                                 <input type="checkbox" name="status" value="1" {{ old('status', $category->status) ? 'checked' : '' }}>
                                 <span class="toggle-slider"></span>

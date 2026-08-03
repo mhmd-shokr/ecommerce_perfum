@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\FragranceNote;
 use App\Models\Size;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Override;
@@ -50,6 +51,12 @@ class Product extends Model
         'short_description',
     ];
 
+    protected function isOutOfStock(): Attribute
+{
+    return Attribute::make(
+        get: fn () => $this->stock_quantity <= 0,
+    );
+}
     public function getIsNewAttribute()
     {
         return $this->created_at>=now()->subDays(7);

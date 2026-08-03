@@ -21,7 +21,7 @@ class AitranslationService{
 
         Rules:
         - Return ONLY JSON.
-        - No markdown.
+        - No markdown. 1
         - No ```json.
         - The response must start with { and end with }.
         - Keep keys exactly the same.
