@@ -127,6 +127,16 @@
             </svg>
             {{ __('Offers') }}
         </a>
+        <a class="nav-link {{ request()->is('admin/reviews*') ? 'active' : '' }}" href="{{ route('admin.reviews.index') }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 12v8H4v-8"/>
+                <path d="M2 7h20v5H2z"/>
+                <path d="M12 7v13"/>
+                <path d="M12 7H8.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7z"/>
+                <path d="M12 7h3.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+            {{ __('Reviews') }}
+        </a>
 
         <a class="nav-link {{ request()->is('admin/customers*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>

@@ -13,6 +13,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\customer\ReviewController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Customer\StoreController;
 use App\Http\Controllers\Customer\VerificationController;
 use App\Http\Controllers\Customer\WishlistController;
@@ -108,6 +109,12 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->name('admin.')->group
     Route::put('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::patch('customers/{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
     Route::put('customers/{customer}/permissions', [CustomerController::class, 'updatePermissions'])->name('customers.permissions.update');
+    //Reviews
+    Route::get('/reviews', [AdminReviewController::class, 'index'])
+    ->name('reviews.index');
+
+    Route::patch('/reviews/{review}/approve', [AdminReviewController::class, 'approve'])
+        ->name('reviews.approve');
 });
 
 //localization

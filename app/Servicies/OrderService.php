@@ -3,12 +3,15 @@ namespace  App\Servicies;
 
 use App\Jobs\SendOrderStatusEmail;
 use App\Models\Order;
-use App\Repositries\OrderRepository;
-use Illuminate\Support\Facades\Cache;
 use App\Helpers\CacheHelper;
-class OrderService{
-    public function __construct(protected OrderRepository $orderRepository){}
+use App\Interfaces\OrderInterface;
 
+class OrderService{
+    public function __construct(protected OrderInterface $orderRepository){}
+
+    public function getOrders(array $filters){
+        return $this->orderRepository->filterOrders($filters,$filters['per_page'] ?? 10 );
+    }
     public function getUserOrders(int $userId){
         return $this->orderRepository->getUserOrders($userId);
     }
@@ -57,10 +60,12 @@ class OrderService{
         throw new \Exception(__('Invalid payment status transition.'));
     }
 
-    $updated=$order->update(['payment_status' => $status]);
-    if ($updated) {
+    $updated = $this->orderRepository
+    ->updatePaymentStatus($order, $status);
+        if ($updated) {
         CacheHelper::clearDashboardCache();
-}
-return $updated;
-}
+    }
+        return $updated;
+    }
+    
 }

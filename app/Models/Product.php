@@ -104,4 +104,9 @@ class Product extends Model
 {
     return $this->hasMany(Cart::class);
 }
+public function approvedReviews()
+{
+    return $this->hasMany(Review::class)
+                ->where('is_approved', true);
+}
 }

@@ -11,6 +11,7 @@ use App\Interfaces\CheckoutInterface;
 use App\Interfaces\CouponInterface;
 use App\Interfaces\OrderInterface;
 use App\Interfaces\ProductInterface;
+use App\Interfaces\ReviewInterface;
 use App\Interfaces\ShippingZoneInterface;
 use App\Interfaces\UserInterface;
 use App\Listeners\NotifyAdminNewOrderListener;
@@ -34,6 +35,7 @@ use App\Repositries\CheckoutRepository;
 use App\Repositries\CouponRepository;
 use App\Repositries\OrderRepository;
 use App\Repositries\ProductRepository;
+use App\Repositries\ReviewRepository;
 use App\Repositries\ShippingZoneRepository;
 use App\Repositries\UserRepository;
 use Illuminate\Pagination\Paginator;
@@ -57,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OrderInterface::class,OrderRepository::class);
         $this->app->bind(CouponInterface::class,CouponRepository::class);
         $this->app->bind(UserInterface::class,UserRepository::class);
+        $this->app->bind(ReviewInterface::class,ReviewRepository::class);
     }
 
 

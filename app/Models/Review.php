@@ -16,11 +16,13 @@ class Review extends Model
         'status',
         'comment',
         'is_verified',
+        'is_approved'
     ];
 
     protected $casts = [
         'is_verified' => 'boolean',
         'status' => 'boolean',
+        'is_approved' => 'boolean',
     ];
 
     public function product(){

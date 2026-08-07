@@ -895,7 +895,15 @@
         $currencySymbol = config('shop.currency_symbol', '$');
         $isOutOfStock = $product->is_out_of_stock;
     @endphp
-
+@if($errors->any())
+<div class="alert alert-danger">
+    <ul>
+        @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
     {{-- Breadcrumb --}}
     <div class="breadcrumb-bar">
         <a href="{{ route('home') }}">{{ __('Home') }}</a> /
@@ -1146,7 +1154,7 @@
                 {{ __('Customer Reviews') }} ({{ $reviewsCount }})
             </div>
 
-            @forelse($product->reviews as $review)
+            @forelse($product->approvedReviews  as $review)
                 <div class="review-item">
                     <div class="review-head">
                         <span class="review-author">{{ $review->user->name ?? __('Anonymous') }}</span>

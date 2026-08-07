@@ -1,13 +1,20 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Admin\CategoryController;
 use App\Http\Controllers\Api\V1\Admin\BrandController;
+use App\Http\Controllers\Api\V1\Admin\CategoryController;
+use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\OrderController as AdminOrderController ;
+use App\Http\Controllers\Api\V1\Customer\OrderController as CustomerOrderController ;
+use App\Http\Controllers\Api\V1\Customer\ReviewController as CustomerReviewController ;
+use App\Http\Controllers\Api\V1\Admin\ReviewController as AdminReviewController ;
 use App\Http\Controllers\Api\V1\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Customer\ProductController as CustomerProductController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 
@@ -26,7 +33,8 @@ Route::prefix('v1')->group(function(){
 
     Route::get('/products', [CustomerProductController::class,'index']);
     Route::get('/products/{slug}', [CustomerProductController::class, 'show']);
-
+    Route::get('/products/{product}/reviews',[CustomerReviewController::class, 'index']
+    );
     Route::middleware('auth:sanctum')->group(function(){
         // Auth
         Route::get('/user',[AuthController::class,'user']);
@@ -43,7 +51,19 @@ Route::prefix('v1')->group(function(){
         //devices
         Route::get('/devices',[UserController::class,'getDevices']);
     
-        //customer
+        //customer 
+
+        //order
+        Route::prefix('orders')->group(function(){
+            Route::get('/', [CustomerOrderController::class, 'index']);
+            Route::get('/{id}', [CustomerOrderController::class, 'show']);
+        });
+        //Review
+        Route::post('/products/{product}/reviews',[CustomerReviewController::class, 'store']
+        );
+        Route::delete('/reviews/{review}',[CustomerReviewController::class, 'destroy']
+        );
+
         //Admin
         Route::prefix('admin')->middleware('role:admin')->group(function(){
             //products for admin
@@ -60,7 +80,34 @@ Route::prefix('v1')->group(function(){
             Route::get('/brands/{id}', [BrandController::class, 'show']);
             Route::put('/brands/{id}', [BrandController::class, 'update']);
             Route::delete('/brands/{id}', [BrandController::class, 'destroy']);     
-
+            //admin dashboard
+            Route::get('/dashboard', [DashboardController::class, 'index'])
+                    ->middleware('permission:view dashboard');
+            //order
+            Route::prefix('orders')->group(function(){
+                Route::get('/', [AdminOrderController::class, 'index']);
+                Route::get('/{order}', [AdminOrderController::class, 'show']);
+                Route::put('/{order}/status',[AdminOrderController::class, 'updateStatus']
+                );
+            });
+            //reviews
+            Route::get('/reviews',[AdminReviewController::class, 'index']
+            );
+            //approve review
+            Route::patch(
+                'reviews/{review}/approve',
+                [AdminReviewController::class, 'approve']
+            );
+            //reject review
+            Route::patch(
+                'reviews/{review}/reject',
+                [AdminReviewController::class, 'reject']
+            );
+            //delete review
+            Route::delete(
+                'reviews/{review}',
+                [AdminReviewController::class, 'destroy']
+            );
         });
 
     });

@@ -13,6 +13,7 @@ class PermissionSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
+            'view dashboard',
             'view products',
             'create products',
             'update products',

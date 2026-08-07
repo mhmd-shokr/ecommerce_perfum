@@ -17,9 +17,14 @@ Interface OrderInterface{
     public function pendingOrdersCount();
     public function pendingOrders();
     public function getOrdersCount();
+    public function updatePaymentStatus(Order $order, string $status);
+
     public function completesOrders();
     public function totalRevenue();
     public function getTopSelling(int $count = 5);
     
+    public function monthlyRevenue();
+    public function recentOrders(int $count = 5);
+    public function filterOrders(array $filters, int $per_page=10);
 
 }
