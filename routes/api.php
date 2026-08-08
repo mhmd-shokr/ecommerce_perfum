@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Admin\OrderController as AdminOrderController ;
 use App\Http\Controllers\Api\V1\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\ReviewController as AdminReviewController ;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\Customer\AddressController;
 use App\Http\Controllers\Api\V1\Customer\OrderController as CustomerOrderController ;
 use App\Http\Controllers\Api\V1\Customer\ProductController as CustomerProductController;
 use App\Http\Controllers\Api\V1\Customer\ReviewController as CustomerReviewController ;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -83,8 +85,8 @@ Route::prefix('v1')->group(function(){
             Route::patch('/read-all',[NotificationController::class, 'markAllAsRead']);
             Route::delete('/{notification}',[NotificationController::class, 'destroy']);
         });
-
-
+        //Address
+        Route::apiResource('addresses', AddressController::class);
 
         //Admin
         Route::prefix('admin')->middleware('role:admin')->group(function(){
