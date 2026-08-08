@@ -221,7 +221,8 @@
             <a href="#"
                 class="c-nav-link {{ request()->is('categories*') ? 'active' : '' }}">{{ __('Collections') }}</a>
             <a href="#" class="c-nav-link {{ request()->is('about*') ? 'active' : '' }}">{{ __('About') }}</a>
-            <a href="{{ route("my.orders.index") }}" class="c-nav-link {{ request()->is('orders*') ? 'active' : '' }}">{{ __('Orders') }}</a>
+            <a href="{{ route("my.orders.index") }}"
+                class="c-nav-link {{ request()->is('orders*') ? 'active' : '' }}">{{ __('Orders') }}</a>
         </div>
 
         {{-- Right side --}}
@@ -269,6 +270,85 @@
                 <span class="c-cart-count">{{ $cartCount}}</span>
             </a>
 
+            {{-- notifivation --}}
+            @auth
+                    <div class="notification-wrap" style="position:relative;">
+
+                        <button class="alert-icon-btn" id="notifBtn" title="{{ __('Notifications') }}" type="button">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.5" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+
+                            @if(auth()->user()->unreadNotifications->count() > 0)
+                                <span class="c-cart-count">
+                                    {{ auth()->user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
+                        </button>
+
+                        {{-- Dropdown --}}
+                        <div class="notif-dropdown" id="notifDropdown" style="
+                            display:none; position:absolute; top:calc(100% + 8px); right:0;
+                            width:320px; background:var(--bg-card); border:1px solid var(--border);
+                            border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,.4); z-index:9999;
+                            overflow:hidden;">
+
+                            {{-- Header --}}
+                            <div style="padding:14px 16px; border-bottom:1px solid var(--border);
+                            display:flex; align-items:center; justify-content:space-between;">
+                                <span style="font-size:13px; color:var(--text-primary); font-family:Arial;">
+                                    {{ __('Notifications') }}
+                                </span>
+                                @if(auth()->user()->unreadNotifications->count() > 0)
+                                    <form method="POST" action="{{ route('notifications.markAllRead') }}">
+                                        @csrf
+                                        <button type="submit" style="
+                                    background:none; border:none; font-size:11px;
+                                    color:var(--gold-dim); cursor:pointer; font-family:Arial;">
+                                            {{ __('Mark all read') }}
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            {{-- List --}}
+                            <div style="max-height:320px; overflow-y:auto;">
+                                @forelse(auth()->user()->notifications()->latest()->take(10)->get() as $notif)
+                                    <a href="{{ $notif->data['url'] ?? '#' }}" onclick="markRead('{{ $notif->id }}')" style="display:flex; align-items:flex-start; gap:10px;
+                                        padding:12px 16px; border-bottom:1px solid rgba(200,169,106,0.06);
+                                        text-decoration:none; background:{{ $notif->read_at ? 'transparent' : 'rgba(200,169,106,0.04)' }};
+                                        transition:background 0.15s;">
+                                        {{-- Dot for unread --}}
+                                        <span style="width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:5px;
+                                                background:{{ $notif->read_at ? 'transparent' : 'var(--gold)' }};
+                                                border:{{ $notif->read_at ? '1px solid var(--border)' : 'none' }};"></span>
+                                        <div>
+                                            <div
+                                                style="font-size:12px; color:var(--text-primary); font-family:Arial; line-height:1.5;">
+                                                {{ $notif->data['message'] }}
+                                            </div>
+                                            <div
+                                                style="font-size:11px; color:var(--text-muted); margin-top:3px; font-family:Arial;">
+                                                {{ \Carbon\Carbon::parse($notif->created_at)->diffForHumans() }}
+                                            </div>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div style="padding:32px 16px; text-align:center;
+                                        font-size:13px; color:var(--text-muted); font-family:Arial;">
+                                        {{ __('No notifications yet') }}
+                                    </div>
+                                @endforelse
+                            </div>
+
+                        </div>
+                    </div>
+
+                   
+            @endauth
+
             {{-- Auth --}}
             @auth
                 <a href="{{ route('profile.update') }}" class="c-btn-outline">{{ auth()->user()->name }}</a>
@@ -284,3 +364,22 @@
         </div>
     </div>
 </nav>
+<script>
+    // Toggle dropdown
+    document.getElementById('notifBtn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        const dd = document.getElementById('notifDropdown');
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    });
+    // Close on outside click
+    document.addEventListener('click', function () {
+        document.getElementById('notifDropdown').style.display = 'none';
+    });
+    // Mark single notification as read
+    function markRead(id) {
+        fetch('/notifications/' + id + '/read', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+        });
+    }
+</script>

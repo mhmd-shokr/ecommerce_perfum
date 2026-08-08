@@ -77,6 +77,18 @@ Route::middleware(['auth','active'])->group(function () {
         Route::get('{order}/stripe-confirm',[PaymentController::class,'stripeConfirm'])->name('stripe.confirm');
         Route::get('{order}/failed',[PaymentController::class,'failed'])->name('failed');
     });
+
+      // Mark single notification as read
+      Route::post('/notifications/{id}/read', function ($id) {
+        auth()->user()->notifications()->findOrFail($id)->markAsRead();
+        return response()->json(['success' => true]);
+    })->name('notifications.markRead');
+
+    // Mark all as read
+    Route::post('/notifications/mark-all-read', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.markAllRead');
 });
  //webhook
 Route::post('webhook/stripe',[WebhookController::class,'handle'])->name('webhook.stripe');

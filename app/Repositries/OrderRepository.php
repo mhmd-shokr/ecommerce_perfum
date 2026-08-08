@@ -104,4 +104,6 @@ public function getTopSelling(int $count = 5){
                     )
                     ->paginate($perPage);
             }
+
+    
 }

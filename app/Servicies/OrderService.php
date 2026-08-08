@@ -5,6 +5,7 @@ use App\Jobs\SendOrderStatusEmail;
 use App\Models\Order;
 use App\Helpers\CacheHelper;
 use App\Interfaces\OrderInterface;
+use App\Notifications\OrderStatusChangedNotification;
 
 class OrderService{
     public function __construct(protected OrderInterface $orderRepository){}
@@ -30,8 +31,10 @@ class OrderService{
     public function updateStatus(Order $order,array $data){
         $oldStatus= $order->status;
         $updatedOrder =$this->orderRepository->updateStatus($order,$data);
-        if ($oldStatus !== $updatedOrder->status) {
+        $updatedOrder->load('user');
+        if ($oldStatus !== $updatedOrder->status &&$updatedOrder->user) {
             SendOrderStatusEmail::dispatch($updatedOrder);
+            $updatedOrder->user->notify(new OrderStatusChangedNotification($updatedOrder));
         }
         CacheHelper::clearDashboardCache();
                 return $updatedOrder;

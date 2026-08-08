@@ -11,9 +11,11 @@ use App\Http\Controllers\Api\V1\Customer\OrderController as CustomerOrderControl
 use App\Http\Controllers\Api\V1\Customer\ProductController as CustomerProductController;
 use App\Http\Controllers\Api\V1\Customer\ReviewController as CustomerReviewController ;
 use App\Http\Controllers\Api\V1\Customer\WishlistController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -73,6 +75,17 @@ Route::prefix('v1')->group(function(){
             Route::get('/check/{product}',[WishlistController::class, 'check']);
             Route::get('/count',[WishlistController::class, 'count']);
         });
+        //Notifications
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::get('/unread', [NotificationController::class, 'unread']);
+            Route::patch('/{notification}/read',[NotificationController::class, 'markAsRead']);
+            Route::patch('/read-all',[NotificationController::class, 'markAllAsRead']);
+            Route::delete('/{notification}',[NotificationController::class, 'destroy']);
+        });
+
+
+
         //Admin
         Route::prefix('admin')->middleware('role:admin')->group(function(){
             //products for admin

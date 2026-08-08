@@ -9,6 +9,7 @@ use App\Interfaces\CartInterface;
 use App\Interfaces\CategoryInterface;
 use App\Interfaces\CheckoutInterface;
 use App\Interfaces\CouponInterface;
+use App\Interfaces\NotificationInterface;
 use App\Interfaces\OrderInterface;
 use App\Interfaces\ProductInterface;
 use App\Interfaces\ReviewInterface;
@@ -34,6 +35,7 @@ use App\Repositries\CartRepository;
 use App\Repositries\CategoryRepositry;
 use App\Repositries\CheckoutRepository;
 use App\Repositries\CouponRepository;
+use App\Repositries\NotificationRepository;
 use App\Repositries\OrderRepository;
 use App\Repositries\ProductRepository;
 use App\Repositries\ReviewRepository;
@@ -62,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserInterface::class,UserRepository::class);
         $this->app->bind(ReviewInterface::class,ReviewRepository::class);
         $this->app->bind(WishlistInterface::class,WishlistRepository::class);
+        $this->app->bind(NotificationInterface::class,NotificationRepository::class);
     }
 
 
