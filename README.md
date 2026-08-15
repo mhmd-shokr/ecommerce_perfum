@@ -23,7 +23,7 @@ Logout / logout from all devices
 
 Role and permission management
 
-Admin / Seller / Customer roles
+Admin / Customer roles
 
 Policies and authorization
 
@@ -540,18 +540,6 @@ Queues & Jobs
 ✅
 
 PHPUnit Testing
-
-🚧
-
-Performance & DB Optimization
-
-🚧
-
-API Documentation
-
-🚧
-
-Production Deployment
 
 🚧
 
