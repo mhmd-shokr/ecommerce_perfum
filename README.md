@@ -1,59 +1,626 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
+🧴 Luxe Parfum — E-Commerce Platform
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+A full-stack e-commerce platform for luxury perfumes, built with Laravel, featuring a customer/admin web application and a versioned RESTful API for external clients such as React and Flutter.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+✨ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+🔐 Authentication & Authorization
 
-## Learning Laravel
+User registration and login
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Laravel Sanctum API authentication
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Email verification with OTP
 
-## Laravel Sponsors
+Forgot password / reset password
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Update password
 
-### Premium Partners
+Logout / logout from all devices
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Role and permission management
 
-## Contributing
+Admin / Seller / Customer roles
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Policies and authorization
 
-## Code of Conduct
+🛍️ E-Commerce
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Products management
 
-## Security Vulnerabilities
+Categories and Brands
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Product filtering
 
-## License
+Sorting and pagination
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Shopping cart
+
+Wishlist
+
+Checkout
+
+Customer addresses
+
+Coupons and discounts
+
+Product reviews
+
+Admin review approval/rejection
+
+📦 Orders
+
+Customer order creation
+
+Customer order history
+
+Admin order management
+
+Order filtering and sorting
+
+Order pagination
+
+Order status management
+
+Payment status management
+
+Stock management
+
+💳 Payments
+
+Stripe integration
+
+Cash on Delivery
+
+Stripe PaymentIntent
+
+Stripe Webhooks
+
+Payment status synchronization
+
+📊 Admin Dashboard
+
+Products, categories, brands and customer statistics
+
+Orders statistics
+
+Revenue
+
+Monthly revenue
+
+Recent orders
+
+Low-stock products
+
+Top-selling products
+
+🌍 Localization
+
+Arabic / English
+
+Web localization using sessions
+
+API localization using Accept-Language
+
+⚡ Background Processing
+
+Laravel Cache
+
+Queues and Jobs
+
+Asynchronous emails
+
+OTP emails
+
+Welcome emails
+
+Order confirmation emails
+
+Stock management
+
+🏗️ Architecture
+
+The project follows a layered architecture to separate HTTP concerns, business logic, and data access.
+
+Web / React / Flutter
+          │
+          ▼
+     Controllers
+          │
+          ▼
+    Form Requests
+          │
+          ▼
+       Services
+          │
+          ▼
+     Repositories
+          │
+          ▼
+        Models
+          │
+          ▼
+        MySQL
+
+Supporting infrastructure:
+
+              ┌──────────────┐
+              │    Redis     │
+              └──────┬───────┘
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+        Cache                 Queues
+                                │
+                                ▼
+                               Jobs
+
+Design Principles
+
+Thin Controllers
+
+Business logic isolated in Services
+
+Repository Pattern
+
+Interface-based dependencies
+
+Form Request validation
+
+API Resources
+
+Policies for authorization
+
+Dependency Injection
+
+Separation of concerns
+
+🌐 Web Application
+
+The Laravel web application provides customer and administration interfaces.
+
+Customer
+
+Browse products
+
+Search and filter products
+
+Add products to cart
+
+Manage wishlist
+
+Checkout
+
+Manage addresses
+
+Apply coupons
+
+Place orders
+
+Review products
+
+Manage account
+
+Admin
+
+Manage products
+
+Manage categories
+
+Manage brands
+
+Manage orders
+
+Manage coupons
+
+Manage reviews
+
+View dashboard statistics
+
+Monitor inventory
+
+🔌 REST API
+
+The project also provides a versioned RESTful API:
+
+/api/v1
+
+The API is designed to support external clients such as:
+
+React applications
+
+Flutter applications
+
+Mobile applications
+
+Other third-party clients
+
+API Features
+
+Sanctum token authentication
+
+API Resources
+
+Pagination
+
+Filtering
+
+Sorting
+
+Validation
+
+JSON responses
+
+Localization
+
+Policies and authorization
+
+🔑 API Authentication
+
+API authentication uses Laravel Sanctum.
+
+Authorization: Bearer {token}
+
+API versioning:
+
+/api/v1/...
+
+🌍 API Localization
+
+The API supports Arabic and English using the Accept-Language header.
+
+Arabic:
+
+Accept-Language: ar
+
+English:
+
+Accept-Language: en
+
+Example:
+
+GET /api/v1/...
+Accept: application/json
+Accept-Language: ar
+
+💳 Payment Flow
+
+The Stripe payment flow is designed around PaymentIntents and webhooks.
+
+Customer
+   │
+   ▼
+Create Order
+   │
+   ▼
+Create PaymentIntent
+   │
+   ▼
+Stripe
+   │
+   ▼
+Payment Confirmation
+   │
+   ▼
+Stripe Webhook
+   │
+   ▼
+Update Order Payment Status
+   │
+   ▼
+Update Stock
+
+📬 Queues & Jobs
+
+Background operations are handled using Laravel Jobs and Queues to avoid blocking normal HTTP requests.
+
+Examples:
+
+Welcome emails
+
+OTP verification emails
+
+Order confirmation emails
+
+Other asynchronous notifications
+
+🧪 Testing
+
+Automated testing is currently being implemented using PHPUnit.
+
+Run the test suite:
+
+php artisan test
+
+Planned/ongoing feature coverage includes:
+
+Authentication
+
+Products
+
+Cart
+
+Checkout
+
+Orders
+
+Coupons
+
+Reviews
+
+Wishlist
+
+Addresses
+
+Payments
+
+Testing is currently in progress and coverage will continue to increase.
+
+⚙️ Installation
+
+1. Clone the repository
+
+git clone YOUR_REPOSITORY_URL
+cd Ecommerce_Perfum
+
+2. Install PHP dependencies
+
+composer install
+
+3. Configure environment
+
+cp .env.example .env
+
+Generate the application key:
+
+php artisan key:generate
+
+4. Configure the database
+
+Update the database settings in .env.
+
+Then run:
+
+php artisan migrate
+
+If seeders are available:
+
+php artisan db:seed
+
+5. Create storage link
+
+php artisan storage:link
+
+6. Start the application
+
+php artisan serve
+
+🔐 Environment Variables
+
+Configure the required values in .env.
+
+APP_NAME=
+APP_ENV=
+APP_KEY=
+APP_URL=
+
+DB_CONNECTION=
+DB_HOST=
+DB_PORT=
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
+
+MAIL_MAILER=
+MAIL_HOST=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+
+STRIPE_KEY=
+STRIPE_SECRET=
+STRIPE_WEBHOOK_SECRET=
+
+QUEUE_CONNECTION=
+CACHE_STORE=
+
+Never commit .env files or secret keys to GitHub.
+
+📁 Project Structure
+
+Important backend directories:
+
+app/
+├── Filters/
+├── Http/
+│   ├── Controllers/
+│   ├── Requests/
+│   └── Resources/
+├── Interfaces/
+├── Jobs/
+├── Models/
+├── Policies/
+├── Repositries/
+└── Servicies/
+
+database/
+├── factories/
+├── migrations/
+└── seeders/
+
+resources/
+├── lang/
+└── views/
+
+routes/
+├── api.php
+└── web.php
+
+Directory names reflect the current project structure.
+
+🚀 Current Status
+
+Module
+
+Status
+
+Web Application
+
+✅
+
+REST API
+
+✅
+
+Authentication
+
+✅
+
+Authorization
+
+✅
+
+Products
+
+✅
+
+Categories
+
+✅
+
+Brands
+
+✅
+
+Cart
+
+✅
+
+Wishlist
+
+✅
+
+Checkout
+
+✅
+
+Orders
+
+✅
+
+Reviews
+
+✅
+
+Coupons
+
+✅
+
+Stripe
+
+✅
+
+Cash on Delivery
+
+✅
+
+Admin Dashboard
+
+✅
+
+Localization
+
+✅
+
+Queues & Jobs
+
+✅
+
+PHPUnit Testing
+
+🚧
+
+Performance & DB Optimization
+
+🚧
+
+API Documentation
+
+🚧
+
+Production Deployment
+
+🚧
+
+🔮 Future Improvements
+
+Increase automated test coverage
+
+Database indexing and query optimization
+
+Complete API documentation
+
+Production deployment
+
+Monitoring and logging improvements
+
+Further caching optimization
+
+🛠️ Tech Stack
+
+Backend
+
+PHP 8.2+
+
+Laravel 12
+
+MySQL
+
+Laravel Sanctum
+
+Spatie Laravel Permission
+
+Payments
+
+Stripe
+
+Infrastructure
+
+Redis
+
+Laravel Queue
+
+Testing & Development
+
+PHPUnit
+
+Postman
+
+Git / GitHub
+
+Frontend
+
+Blade
+
+HTML5
+
+CSS3
+
+JavaScript
+
+Bootstrap
+
+👨‍💻 Author
+
+Mohamed Shokr
+
+Laravel Backend Developer
+
+PHP · Laravel · MySQL · REST API · Sanctum · Stripe · Redis · PHPUnit
+
+⭐ Project
+
+If you find this project useful or interesting, feel free to explore the source code and leave a star.
